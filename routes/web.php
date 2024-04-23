@@ -1,50 +1,47 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\SuhuController;
+use App\Http\Controllers\PhController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\UserController;
+
+
 
 /*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
+
+Note:
+
+Untuk setiap fitur bagusnya dibuatkan controller untuk mengelola -
+proses yang akan dilakukan sebelum diarahkan ke suatu halaman/view
+
 */
 
-Route::get('/', function () {
-    return view('home');
-});
 
-Route::get('/suhu', function () {
-    return view('suhu.suhu');
-});
+Route::get('/', [UserController::class, 'welcome'])->name('welcome');
+Route::get('/home', [HomeController::class, 'homeData'])->name('home');
 
-Route::get('riwayat-suhu', function () {
-    return view('suhu.riwayat');
-});
+Route::get('/suhu', [SuhuController::class, 'latestSuhu']);
+Route::post('/suhu', [SuhuController::class, 'updateparametersuhu']);
 
-Route::get('/ph', function () {
-    return view('ph.ph');
-});
+Route::get('/riwayat-suhu', [SuhuController::class, 'index'])->name('suhu.riwayat');
 
-Route::get('riwayat-ph', function () {
-    return view('ph.riwayat');
-});
+Route::get('/ph', [PhController::class, 'latestPh']);
+Route::post('/ph', [PhController::class, 'updateparameterph']);
+
+Route::get('/riwayat-ph', [PhController::class, 'index'])->name('ph.riwayat');
+
+
+Route::get('/register', [UserController::class, 'register'])->name('register');
+Route::post('/register', [UserController::class, 'create'])->name('register.submit');
+
+Route::get('/login', [UserController::class, 'showLoginForm'])->name('login');
+Route::post('/home', [UserController::class, 'login'])->name('login.submit');
+Route::post('/', [UserController::class, 'logout'])->name('logout');
+
+Route::get('/get-notif', [NotificationController::class, 'checkNotifications'])->name('notifications');
 
 Route::get('/ppm', function () {
     return view('ppm.ppm');
-});
-
-Route::get('riwayat-ppm', function () {
-    return view('ppm.riwayat');
-});
-
-Route::get('login', function(){
-    return view('auth.login');
-});
-
-Route::get('register', function(){
-    return view('auth.register');
 });
