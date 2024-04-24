@@ -19,8 +19,8 @@ proses yang akan dilakukan sebelum diarahkan ke suatu halaman/view
 */
 
 
-Route::get('/', [UserController::class, 'welcome'])->name('welcome');
-Route::get('/home', [HomeController::class, 'homeData'])->name('home');
+// Route::get('/', [UserController::class, 'welcome'])->name('welcome');
+Route::get('/', [HomeController::class, 'homeData'])->name('home');
 
 Route::get('/suhu', [SuhuController::class, 'latestSuhu']);
 Route::post('/suhu', [SuhuController::class, 'updateparametersuhu']);

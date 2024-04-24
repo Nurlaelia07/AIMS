@@ -11,7 +11,7 @@ class UserController extends Controller
 {
     public function register()
     {
-        return view('auth.register');
+        return view('register');
     }
 
     public function welcome()
@@ -49,7 +49,7 @@ class UserController extends Controller
 
     public function showLoginForm()
     {
-        return view('auth.login');
+        return view('login');
     }
 
     public function login(Request $request)
