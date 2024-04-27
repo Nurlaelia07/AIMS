@@ -46,8 +46,8 @@
             <div class="col-md-6">
                 <div class="card p-3">
                     <h5 class="text-center mb-3">Suhu Terkini</h5>
-                    <canvas id="barometer-suhu" style="width:100%;max-width:600px"></canvas>
-                    <h1 id="suhu" ></h1>
+                    <canvas id="barometer-suhu" style="width:60%;max-width:600px;display: block;margin: 0 auto;"></canvas>
+                    <h3 id="suhu" class="text-center mb-3"></h3>
                 </div>
             </div>
             <div class="col-md-6">
@@ -119,28 +119,31 @@
         parameterElement.innerHTML = temperatureRange;
     </script>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var maxSuhuInput = document.getElementById('max_suhu');
-        var minSuhuInput = document.getElementById('min_suhu');
-        var perbaruiButton = document.getElementById('btn-perbarui');
-    
-        function checkInputs() {
-            var maxSuhuValue = maxSuhuInput.value.trim();
-            var minSuhuValue = minSuhuInput.value.trim();
-        
-            if (maxSuhuValue !== '' || minSuhuValue !== '') {
-                perbaruiButton.disabled = false;
-            } else {
-                perbaruiButton.disabled = true;
-            }
-        }
-        perbaruiButton.disabled = true;
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var maxSuhuInput = document.getElementById('max_suhu');
+    var minSuhuInput = document.getElementById('min_suhu');
+    var perbaruiButton = document.getElementById('btn-perbarui');
 
-        maxSuhuInput.addEventListener('input', checkInputs);
-        minSuhuInput.addEventListener('input', checkInputs);
-    });
-    </script>
+    function checkInputs() {
+        var maxSuhuValue = maxSuhuInput.value.trim();
+        var minSuhuValue = minSuhuInput.value.trim();
+
+        if (maxSuhuValue !== '' || minSuhuValue !== '') {
+            perbaruiButton.disabled = false;
+        } else {
+            perbaruiButton.disabled = true;
+        }
+    }
+    perbaruiButton.disabled = true;
+ 
+    maxSuhuInput.addEventListener('input', checkInputs);
+    minSuhuInput.addEventListener('input', checkInputs);
+
+
+
+});
+</script>
 
 <script src="https://bernii.github.io/gauge.js/dist/gauge.min.js"></script>
 <script>

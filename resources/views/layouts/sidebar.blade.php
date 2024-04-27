@@ -13,7 +13,7 @@
         <hr class="sidebar-divider my-0">
 
         <li class="nav-item {{ Request::is('/') ? 'active' : '' }}">
-            <a class="nav-link text-center" href="{{ url('/') }}">
+            <a class="nav-link text-center" href="{{ url('/home') }}">
                 <span>Home</span></a>
         </li> 
         

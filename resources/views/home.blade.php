@@ -5,7 +5,7 @@
             <div class="col-md-12"> 
                 <div class="card p-4" style="background: linear-gradient(98.59deg, #46B04B 36.51%, #B1B03E 105.37%); border-radius: 25px">
                     <p class="text-white mt-3 ml-3">5 April, 2024</p>
-                    <h1 class="text-white ml-3 mt-3">Hello, Gilang</h1>
+                    <h1 class="text-white ml-3 mt-3">Hello, {{ session('username')}}</h1>
                     <p class="text-white ml-3">Welcome back to Aims</p>
                 </div>
             </div>

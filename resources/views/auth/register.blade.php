@@ -48,7 +48,7 @@
                                 <div class="text-white px-3 py-4 p-md-5 mx-md-4 text-center">
                                     <h4 class="mb-4">Welcome Back!</h4>
                                     <p class="small">To keep connected with us please login with your personal infomation</p>
-                                    <a href="{{ url('login') }}" class="btn btn-outline-light form-control p-3 mt-3"
+                                    <a href="{{ route('login') }}" class="btn btn-outline-light form-control p-3 mt-3"
                                         style="border-radius: 20px">Login</a>
                                 </div>
                             </div>
@@ -67,20 +67,29 @@
                                                 <label for="floatingInputGroup1">Username</label>
                                             </div>
                                         </div>
-                                        <div class="input-group mb-3">
+                                        <!-- <div class="input-group mb-3">
                                             <span class="input-group-text"><i class="bi bi-envelope"></i></span>
                                             <div class="form-floating">
                                                 <input type="email" class="form-control" id="floatingInputGroup1" placeholder="Username">
                                                 <label for="floatingInputGroup1">Email</label>
                                             </div>
-                                        </div>
+                                        </div> -->
                                         <div class="input-group mb-3">
                                             <span class="input-group-text"><i class="bi bi-key"></i></span>
                                             <div class="form-floating">
                                                 <input type="password" class="form-control" id="floatingInputGroup1" placeholder="Username">
                                                 <label for="floatingInputGroup1">Password</label>
                                             </div>
-                                        </div> 
+                                        </div>
+                                        @if ($errors->has('username') || $errors->has('password'))
+                                            <div class="alert alert-danger">
+                                                @if ($errors->has('username'))
+                                                    {{ $errors->first('username') }}
+                                                @elseif ($errors->has('password'))
+                                                    {{ $errors->first('password') }}
+                                                @endif
+                                            </div>
+                                        @endif 
                                         <div class="text-center pt-1 mb-5 pb-1">
                                             <button style="background-color: #23AF4F; border-radius: 20px"
                                                 class="btn btn-block form-control fa-lg text-white p-3 mb-3" type="button">Register</button>

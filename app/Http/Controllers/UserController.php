@@ -11,7 +11,7 @@ class UserController extends Controller
 {
     public function register()
     {
-        return view('register');
+        return view('auth.register');
     }
 
     public function welcome()
@@ -42,14 +42,14 @@ class UserController extends Controller
         ];
     
         User::create($user);
-        return redirect()->route('welcome');
+        return redirect()->route('login');
     }
     
     
 
     public function showLoginForm()
     {
-        return view('login');
+        return view('auth.login');
     }
 
     public function login(Request $request)
@@ -70,6 +70,8 @@ class UserController extends Controller
     
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
+            $username = Auth::user()->username; 
+            $request->session()->put('username', $username); 
             return redirect()->route('home');
         } else {
             // Jika otentikasi gagal, cek apakah username ada di database
@@ -81,12 +83,6 @@ class UserController extends Controller
             }
         }
     }
-    
-    
-    
-    
-    
-    
     
 
     public function logout()

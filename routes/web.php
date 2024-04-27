@@ -20,7 +20,7 @@ proses yang akan dilakukan sebelum diarahkan ke suatu halaman/view
 
 
 // Route::get('/', [UserController::class, 'welcome'])->name('welcome');
-Route::get('/', [HomeController::class, 'homeData'])->name('home');
+Route::get('/home', [HomeController::class, 'homeData'])->name('home');
 
 Route::get('/suhu', [SuhuController::class, 'latestSuhu']);
 Route::post('/suhu', [SuhuController::class, 'updateparametersuhu']);
@@ -32,16 +32,17 @@ Route::post('/ph', [PhController::class, 'updateparameterph']);
 
 Route::get('/riwayat-ph', [PhController::class, 'index'])->name('ph.riwayat');
 
+Route::get('/ppm', [PhController::class, 'latestPh']);
+Route::post('/ppm', [PhController::class, 'updateparameterph']);
+
+Route::get('/riwayat-ppm', [PhController::class, 'index'])->name('ph.riwayat');
+
 
 Route::get('/register', [UserController::class, 'register'])->name('register');
 Route::post('/register', [UserController::class, 'create'])->name('register.submit');
 
-Route::get('/login', [UserController::class, 'showLoginForm'])->name('login');
-Route::post('/home', [UserController::class, 'login'])->name('login.submit');
+Route::get('/', [UserController::class, 'showLoginForm'])->name('login');
+Route::post('/home', [UserController::class, 'login'])->middleware('web')->name('login.submit');
 Route::post('/', [UserController::class, 'logout'])->name('logout');
 
 Route::get('/get-notif', [NotificationController::class, 'checkNotifications'])->name('notifications');
-
-Route::get('/ppm', function () {
-    return view('ppm.ppm');
-});

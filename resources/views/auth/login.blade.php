@@ -51,33 +51,42 @@
                                                 class="text-success fw-bold">AiMS</span></h4>
                                     </div>
 
-                                    <form action="{{ url('/') }}">
+                                    <form action="{{ route('login.submit') }}" method="POST">
+                                    @csrf
                                         <div class="input-group mb-3">
-                                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                            <span class="input-group-text"><i class="bi bi-person-add"></i></span>
                                             <div class="form-floating">
-                                                <input type="email" class="form-control" id="floatingInputGroup1"
+                                                <input type="username" class="form-control @error('username') is-invalid @enderror" name="username" value="{{ old('username') }}" id="floatingInputGroup1"
                                                     placeholder="Username">
-                                                <label for="floatingInputGroup1">Email</label>
+                                                <label for="floatingInputGroup1">Username</label>
                                             </div>
                                         </div>
                                         <div class="input-group mb-3">
                                             <span class="input-group-text"><i class="bi bi-key"></i></span>
                                             <div class="form-floating">
-                                                <input type="password" class="form-control" id="floatingInputGroup1"
+                                                <input type="password" class="form-control @error('password') is-invalid @enderror" name="password" id="floatingInputGroup1"
                                                     placeholder="Username">
                                                 <label for="floatingInputGroup1">Password</label>
                                             </div>
                                         </div>
-                                        <div class="input-group mb-2">
+                                        @if ($errors->has('username') || $errors->has('password'))
+                                            <div class="alert alert-danger">
+                                                @if ($errors->has('username'))
+                                                    {{ $errors->first('username') }}
+                                                @elseif ($errors->has('password'))
+                                                    {{ $errors->first('password') }}
+                                                @endif
+                                            </div>
+                                        @endif
+                                        <!-- <div class="input-group mb-2">
                                             <input type="checkbox" class="" name="" id=""> <span
                                                 class="ms-2">remember</span>
                                             <a href="" class="ms-auto nav-link text-warning">Forgot Password?</a>
-                                        </div>
+                                        </div> -->
                                         <div class="text-center pt-1 mb-5 pb-1">
                                             <button style="background-color: #23AF4F; border-radius: 20px"
                                                 class="btn btn-block form-control fa-lg text-white p-3 mb-3"
-                                                type="submit">Log
-                                                in</button>
+                                                type="submit">Login</button>
                                         </div>
                                     </form>
 
