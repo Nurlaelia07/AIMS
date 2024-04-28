@@ -28,7 +28,6 @@
                 @csrf
                     <input type="text" class="form-control bg-light" placeholder="Masukkan parameter atas" name="max_suhu" id="max_suhu" style="border-radius: 15px">
                     <input type="text" class="form-control bg-light mt-3" placeholder="Masukkan parameter bawah" name="min_suhu" id="min_suhu" style="border-radius: 15px">
-                </form>
                 <div class="row mt-3">
                     <div class="col-md-8">
                         <div class="card">
@@ -40,6 +39,7 @@
                         <button id="btn-perbarui" class="btn btn-success" >Update</button>
                     </div>
                 </div>
+                </form>
             </div>
         </div>
         <div class="row mt-4">
@@ -81,26 +81,13 @@
             </div>
         </div>
     </div>
-    <!-- <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="border-radius: 15px; background-color: #29CC39">
-                <div class="modal-body p-4">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                    <h1 class="text-center mt-5">
-                        <i class="fas fa-check text-white text-center" style="font-size: 50px;"></i>
-                    </h1>
-                    <h3 class="text-white text-center mt-4">Success</h3>
-                    <p class="text-center text-white mt-3">Anda berhasil memperbarui parameter suhu!</p>
-                </div>
-            </div>
-        </div>
-    </div> -->
+
+
 @endsection
 
 @section('scripts')
-    <script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
         var parameterElement = document.getElementById('parameter');
         <?php
             $conn = mysqli_connect("127.0.0.1", "root" , "", "aims"); 
@@ -117,7 +104,7 @@
         var temperatureRange = minTemperature + '&nbsp;<sup>o</sup>C -&nbsp;' + maxTemperature + '&nbsp;<sup>o</sup>C';
 
         parameterElement.innerHTML = temperatureRange;
-    </script>
+</script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
