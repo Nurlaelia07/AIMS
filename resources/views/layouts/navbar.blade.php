@@ -11,7 +11,7 @@
 
         <!-- Nav Item - Search Dropdown (Visible Only XS) -->
         <li class="nav-item dropdown no-arrow d-sm-none">
-            <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-toggle="dropdown"
+            <a class="nav-link dropdown-toggle" id="searchDropdown" role="button" data-toggle="dropdown"
                 aria-haspopup="true" aria-expanded="false">
                 <i class="fas fa-search fa-fw"></i>
             </a>
@@ -34,31 +34,20 @@
 
         <!-- Nav Item - Alerts -->
         <li class="nav-item dropdown no-arrow mx-1">
-            <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown"
-                aria-haspopup="true" aria-expanded="false">
-                <i class="fas fa-bell fa-fw"></i>
+            <a  class="nav-link dropdown-toggle" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i  class="fas fa-bell fa-fw"></i>
                 <!-- Counter - Alerts -->
-                <span class="badge badge-danger badge-counter">3+</span>
+                <span id="badgeCounter" class="badge badge-danger badge-counter">3+</span>
             </a>
             <!-- Dropdown - Alerts -->
-            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                aria-labelledby="alertsDropdown">
+            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
                 <h6 class="dropdown-header" style="background-color: #23AF4F; border: none">
                     Notifications
                 </h6>
-                <a class="dropdown-item d-flex align-items-center" href="#">
-                    <div class="mr-3">
-                        <div class="icon-circle bg-warning">
-                            <i class="fas fa-exclamation-triangle text-white"></i>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="small text-gray-500">December 2, 2019</div>
-                        Suhu diatas parameter. Segera tambahkan air dingin dan dinginkan instalasi
-                    </div>
-                </a>
-                <a class="dropdown-item text-center small text-gray-500" href="#">Mark all
-                    as read</a>
+                <div id="notificationContent">
+                    <!-- Isi notifikasi akan diperbarui di sini -->
+                </div>
+                <a class="dropdown-item text-center small text-gray-500">Mark all as read</a>
             </div>
         </li>
 
@@ -89,3 +78,52 @@
 
 </nav>
 <!-- End of Topbar -->
+
+<!-- JavaScript untuk mengambil data notifikasi dari server dan memperbarui tampilan -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function(){
+    // Fungsi untuk memperbarui jumlah notifikasi dan isi notifikasi
+    function updateNotifications() {
+        $.ajax({
+            url: '/get-notifications', // Ganti dengan URL yang sesuai untuk mengambil data notifikasi dari server
+            type: 'GET',
+            success: function(data) {
+                // Memperbarui jumlah notifikasi
+                $('#badgeCounter').text(data.notifications.length);
+
+                // Memperbarui isi notifikasi
+                var notificationContent = '';
+                data.notifications.forEach(function(notification) {
+                    notificationContent += `
+                        <a class="dropdown-item d-flex align-items-center">
+                            <div class="mr-3">
+                                <div class="icon-circle bg-warning">
+                                    <i class="fas fa-exclamation-triangle text-white"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="small text-gray-500">${notification.date}</div>
+                                <div>${notification.message}</div>
+                            </div>
+                        </a>
+                    `;
+                });
+                $('#notificationContent').html(notificationContent);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+            }
+        });
+    }
+
+    // Panggil fungsi updateNotifications setiap kali dropdown notifikasi diklik
+    $('#alertsDropdown').on('click', function (e) {
+        e.stopPropagation();
+        updateNotifications();
+    });
+
+    // Memanggil fungsi updateNotifications saat halaman dimuat
+    updateNotifications();
+});
+</script>
