@@ -13,17 +13,6 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('parameter', function (Blueprint $table) {
-            $table->id('id_parameter');
-            $table->unsignedBigInteger('fk_id_parameter_ph_air');
-            $table->unsignedBigInteger('fk_id_parameter_ppm_air');
-            $table->unsignedBigInteger('fk_id_parameter_suhu');
-            $table->timestamps();
-            
-            $table->foreign('fk_id_parameter_ph_air')->references('id_paramater_ph_air')->on('parameter_ph_air')->onDelete('cascade');
-            $table->foreign('fk_id_parameter_ppm_air')->references('id_paramater_ppm_air')->on('parameter_ppm_air')->onDelete('cascade');
-            $table->foreign('fk_id_parameter_suhu')->references('id_paramater_suhu')->on('parameter_suhu')->onDelete('cascade');
-        });
 
         Schema::create('parameter_ph_air', function (Blueprint $table) {
             $table->id('id_paramater_ph_air');
@@ -49,6 +38,14 @@ return new class extends Migration
         Schema::create('ph_air', function (Blueprint $table) {
             $table->id('id_ph');
             $table->double('ph_air');
+            $table->date('tanggal');
+            $table->time('waktu');
+            $table->timestamps();
+        });
+
+        Schema::create('ppm_air', function (Blueprint $table) {
+            $table->id('id_ppm');
+            $table->double('ppm_air');
             $table->date('tanggal');
             $table->time('waktu');
             $table->timestamps();
@@ -80,6 +77,7 @@ return new class extends Migration
         Schema::dropIfExists('users');
         Schema::dropIfExists('suhu');
         Schema::dropIfExists('ph_air');
+        Schema::dropIfExists('ppm_air');
         Schema::dropIfExists('parameter_suhu');
         Schema::dropIfExists('parameter_ppm_air');
         Schema::dropIfExists('parameter_ph_air');

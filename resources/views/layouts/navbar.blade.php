@@ -37,17 +37,16 @@
             <a  class="nav-link dropdown-toggle" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <i  class="fas fa-bell fa-fw"></i>
                 <!-- Counter - Alerts -->
-                <span id="badgeCounter" class="badge badge-danger badge-counter">3+</span>
+                <span id="badgeCounter" class="badge badge-danger badge-counter"></span>
             </a>
             <!-- Dropdown - Alerts -->
             <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
                 <h6 class="dropdown-header" style="background-color: #23AF4F; border: none">
                     Notifications
                 </h6>
-                <div id="notificationContent">
-                    <!-- Isi notifikasi akan diperbarui di sini -->
-                </div>
-                <a class="dropdown-item text-center small text-gray-500">Mark all as read</a>
+                <a id="notificationLink" class="dropdown-item d-flex align-items-center" href="#">
+                </a>
+        <a class="dropdown-item text-center small text-gray-500">Mark all as read</a>
             </div>
         </li>
 
@@ -78,9 +77,82 @@
 
 </nav>
 <!-- End of Topbar -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    
+    function addNotification(date, suhu, minSuhu, maxSuhu) {
+        var dropdownMenu = document.getElementById('alertsDropdown');
+        var notificationLink = document.getElementById('notificationLink');
+
+    
+        var message = '';
+        if (suhu > maxSuhu) {
+            message = 'Suhu diatas parameter. Segera tambahkan air dingin dan dinginkan instalasi';
+        } else if (suhu < minSuhu) {
+            message = 'Suhu dibawah parameter. Segera tambahkan air hangat dan hangatkan instalasi';
+        }
+        
+    
+        if (message !== '') {
+            var notificationContent = `
+                <div class="mr-3">
+                    <div class="icon-circle bg-warning">
+                        <i class="fas fa-exclamation-triangle text-white"></i>
+                    </div>
+                </div>
+                <div>
+                    <div class="small text-gray-500"></div>
+                    Suhu: ${suhu}°C - ${message}
+                </div>
+            `;
+            
+        } else {
+            
+        }
+
+       
+        notificationLink.innerHTML = notificationContent;
+
+        updateCounter();
+    }
+
+    function updateCounter() {
+        var badgeCounter = document.getElementById('badgeCounter');
+        var notificationCount = document.querySelectorAll('#notificationLink').length;
+
+        // Periksa jumlah notifikasi
+        if (notificationCount > 0) {
+            badgeCounter.textContent = notificationCount;
+            badgeCounter.style.display = 'block';
+        } else {
+            badgeCounter.style.display = 'none';
+        }
+    }
+
+    
+    <?php
+            $conn = mysqli_connect("127.0.0.1", "root" , "", "aims");
+            $parameter = mysqli_query($conn, "SELECT min_suhu, max_suhu FROM parameter_suhu");
+            $parameterData = [];
+            while ($data_parameter = mysqli_fetch_assoc($parameter)) {
+                $parameterData[] = $data_parameter;
+            }
+            $suhunotif = mysqli_query($conn, "SELECT suhu FROM suhu ORDER BY id_suhu DESC LIMIT 1");
+            $suhuData = mysqli_fetch_assoc($suhunotif);
+            mysqli_close($conn);
+        ?>
+    var suhu = <?php echo $suhuData['suhu']; ?>;
+    var minSuhu = <?php echo $parameterData[0]['min_suhu']; ?>;
+    var maxSuhu = <?php echo $parameterData[0]['max_suhu']; ?>;
+    addNotification(suhu, minSuhu, maxSuhu);
+</script>
+
+
+
+
 
 <!-- JavaScript untuk mengambil data notifikasi dari server dan memperbarui tampilan -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 $(document).ready(function(){
     // Fungsi untuk memperbarui jumlah notifikasi dan isi notifikasi
@@ -126,4 +198,4 @@ $(document).ready(function(){
     // Memanggil fungsi updateNotifications saat halaman dimuat
     updateNotifications();
 });
-</script>
+</script> -->

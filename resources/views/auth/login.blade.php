@@ -65,7 +65,7 @@
                                             <span class="input-group-text"><i class="bi bi-key"></i></span>
                                             <div class="form-floating">
                                                 <input type="password" class="form-control @error('password') is-invalid @enderror" name="password" id="floatingInputGroup1"
-                                                    placeholder="Username">
+                                                    placeholder="Password">
                                                 <label for="floatingInputGroup1">Password</label>
                                             </div>
                                         </div>
@@ -78,11 +78,6 @@
                                                 @endif
                                             </div>
                                         @endif
-                                        <!-- <div class="input-group mb-2">
-                                            <input type="checkbox" class="" name="" id=""> <span
-                                                class="ms-2">remember</span>
-                                            <a href="" class="ms-auto nav-link text-warning">Forgot Password?</a>
-                                        </div> -->
                                         <div class="text-center pt-1 mb-5 pb-1">
                                             <button style="background-color: #23AF4F; border-radius: 20px"
                                                 class="btn btn-block form-control fa-lg text-white p-3 mb-3"

@@ -36,7 +36,8 @@
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <button id="btn-perbarui" class="btn btn-success" >Update</button>
+                        <button id="btn-perbarui" class="btn btn-success" data-toggle="modal"
+                        data-target="#updateModal">Update</button>
                     </div>
                 </div>
                 </form>
@@ -81,6 +82,22 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 15px; background-color: #29CC39">
+            <div class="modal-body p-4">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h1 class="text-center mt-5">
+                    <i class="fas fa-check text-white text-center" style="font-size: 50px;"></i>
+                </h1>
+                <h3 class="text-white text-center mt-4">Success</h3>
+                <p class="text-center text-white mt-3">Anda berhasil memperbarui parameter pH!</p>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 @endsection

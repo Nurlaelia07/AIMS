@@ -59,26 +59,22 @@
                                         <h4 class="mt-1 mb-5 pb-1"><span class="text-success fw-bold">Create Account</span></h4>
                                     </div>
                             
-                                    <form>
+                                    <form action="{{ route('register.submit') }}" method="POST">
+                                        @csrf
                                         <div class="input-group mb-3">
                                             <span class="input-group-text"><i class="bi bi-person-add"></i></span>
                                             <div class="form-floating">
-                                                <input type="text" class="form-control" id="floatingInputGroup1" placeholder="Username">
+                                                <input type="username" class="form-control @error('username') is-invalid @enderror" name="username" value="{{ old('username') }}" id="floatingInputGroup1"
+                                                    placeholder="Username">
                                                 <label for="floatingInputGroup1">Username</label>
                                             </div>
                                         </div>
-                                        <!-- <div class="input-group mb-3">
-                                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                                            <div class="form-floating">
-                                                <input type="email" class="form-control" id="floatingInputGroup1" placeholder="Username">
-                                                <label for="floatingInputGroup1">Email</label>
-                                            </div>
-                                        </div> -->
                                         <div class="input-group mb-3">
                                             <span class="input-group-text"><i class="bi bi-key"></i></span>
                                             <div class="form-floating">
-                                                <input type="password" class="form-control" id="floatingInputGroup1" placeholder="Username">
-                                                <label for="floatingInputGroup1">Password</label>
+                                                <input type="password" class="form-control @error('password') is-invalid @enderror" name="password" id="floatingInputGroup2"
+                                                    placeholder="Password">
+                                                <label for="floatingInputGroup2">Password</label>
                                             </div>
                                         </div>
                                         @if ($errors->has('username') || $errors->has('password'))
@@ -92,7 +88,7 @@
                                         @endif 
                                         <div class="text-center pt-1 mb-5 pb-1">
                                             <button style="background-color: #23AF4F; border-radius: 20px"
-                                                class="btn btn-block form-control fa-lg text-white p-3 mb-3" type="button">Register</button>
+                                                class="btn btn-block form-control fa-lg text-white p-3 mb-3" type="submit">Register</button>
                                         </div>
                                     </form>
                                 </div>

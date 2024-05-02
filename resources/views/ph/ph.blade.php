@@ -23,24 +23,23 @@
     <div class="row mt-4">
         <h4 class="mb-3">Parameter pH</h4>
         <div class="col-md-5">
-            <form action="">
-                <input type="number" class="form-control bg-light" placeholder="Masukkan parameter atas"
-                    style="border-radius: 15px">
-                <input type="number" class="form-control bg-light mt-3" placeholder="Masukkan parameter bawah"
-                    style="border-radius: 15px">
-            </form>
-            <div class="row mt-3">
-                <div class="col-md-8">
-                    <div class="card">
-                        <h5 class="mt-3 ms-3">Parameter</h5>
-                        <p class="ms-3">30 C - 40 C</p>
+        <form action="" method="post">
+                @csrf
+                    <input type="text" class="form-control bg-light" placeholder="Masukkan parameter atas" name="max_ph_air" id="max_ph_air" style="border-radius: 15px">
+                    <input type="text" class="form-control bg-light mt-3" placeholder="Masukkan parameter bawah" name="min_ph_air" id="min_ph_air" style="border-radius: 15px">
+                <div class="row mt-3">
+                    <div class="col-md-8">
+                        <div class="card">
+                            <h5 class="mt-3 ms-3">Parameter</h5>
+                            <p id="parameter" class="ms-3"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <button id="btn-perbarui" class="btn btn-success" data-toggle="modal"
+                        data-target="#updateModal">Update</button>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <button class="btn btn-success form-control" data-toggle="modal"
-                        data-target="#updateModal">Update</button>
-                </div>
-            </div>
+                </form>
         </div>
     </div>
 
@@ -113,24 +112,24 @@
             $max[] = $data_parameter['max_ph_air'];
         }
     ?>
-    var minTemperature = <?php echo json_encode($min); ?>[0];
-    var maxTemperature = <?php echo json_encode($max); ?>[0];
-    var temperatureRange = minTemperature + '&nbsp;<sup>o</sup>C -&nbsp;' + maxTemperature + '&nbsp;<sup>o</sup>C';
+    var min = <?php echo json_encode($min); ?>[0];
+    var max = <?php echo json_encode($max); ?>[0];
+    var temperatureRange = min + '&nbsp; -&nbsp;' + max + '&nbsp;';
 
     parameterElement.innerHTML = temperatureRange;
 </script>
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        var maxSuhuInput = document.getElementById('max_suhu');
-        var minSuhuInput = document.getElementById('min_suhu');
+        var maxPhInput = document.getElementById('max_ph_air');
+        var minPhInput = document.getElementById('min_ph_air');
         var perbaruiButton = document.getElementById('btn-perbarui');
     
         function checkInputs() {
-            var maxSuhuValue = maxSuhuInput.value.trim();
-            var minSuhuValue = minSuhuInput.value.trim();
+            var maxPhValue = maxPhInput.value.trim();
+            var minPhValue = minPhInput.value.trim();
         
-            if (maxSuhuValue !== '' || minSuhuValue !== '') {
+            if (maxPhValue !== '' || minPhValue !== '') {
                 perbaruiButton.disabled = false;
             } else {
                 perbaruiButton.disabled = true;
@@ -138,8 +137,8 @@
         }
         perbaruiButton.disabled = true;
 
-        maxSuhuInput.addEventListener('input', checkInputs);
-        minSuhuInput.addEventListener('input', checkInputs);
+        maxPhInput.addEventListener('input', checkInputs);
+        minPhInput.addEventListener('input', checkInputs);
     });
     </script>
 
