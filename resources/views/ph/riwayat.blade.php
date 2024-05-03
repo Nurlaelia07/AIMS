@@ -4,193 +4,115 @@
 @section('content')
 <div class="container">
     <div class="row">
-        <a href="{{ url('ph') }}" class="nav-link ml-3 mb-3"><i class="fas fa-chevron-left"></i></a>
-        <div class="col-md-3">
-            <select name="filter" id="filter" onclick="filter()" class="form-control">
-                <option value="" disabled selected>Select Filter</option>
-                <option value="jam">Jam</option>
-                <option value="hari">Hari</option>
-                <option value="bulan">Bulan</option>
-            </select>
-        </div>
-        <div class="col-md-12 mt-3">
-            <div class="table-responsive" id="riwayat">
-                <table class="table">
-                    <thead style="background-color: gainsboro">
+    <a href="{{ url('ph') }}" class="nav-link ml-3 mb-3"><i class="fas fa-chevron-left"></i></a>
+            <div class="col-md-3">
+            <form action="{{ route('ph.riwayat') }}" method="GET">
+                <select name="filter" id="filter" onchange="filterPh()" class="form-control">
+                    <option value="" disabled selected>Pilih Filter</option>
+                    <option value="no">No Filter</option>
+                    <option value="jam">Jam</option>
+                    <option value="hari">Hari</option>
+                    <option value="bulan">Bulan</option>
+                </select>
+            </form>
+            </div>
+            <div class="col-md-12 mt-3">
+                <div class="table-responsive" id="riwayat">
+                    <table class="table">
+                        <thead style="background-color: gainsboro">
                         <tr>
+                        @if($filter === 'jam')
                             <th>Tanggal</th>
                             <th>Jam</th>
-                            <th>pH</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+                        @elseif($filter === 'hari')
+                            <th>Hari</th>
+                            <th>Tanggal</th>
+                        @elseif($filter === 'bulan')
+                            <th>Bulan</th>
+                            <th>Tahun</th>
+                        @else
+                            <th>Tanggal</th>
+                            <th>Waktu</th>
+                        @endif
+                        <th>pH</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($riwayatPh as $data)
                         <tr>
-                            <td>12-04-2024</td>
-                            <td>12.20 WIB</td>
-                            <td>30 C</td>
+                            @if($filter === 'jam')
+                                <td>{{ $data->tanggal }}</td>
+                                <td>{{ $data->jam }}</td>
+                            @elseif($filter === 'hari')
+                                <td>{{ __('day.' . strtolower($data->hari)) }}</td>
+                                <td>{{ $data->tanggal }}</td>
+                            @elseif($filter === 'bulan')
+                                <td>{{ $data->bulan }}</td>
+                                <td>{{ $data->tahun }}</td>
+                            @else
+                                <td>{{ $data->tanggal }}</td>
+                                <td>{{ $data->waktu }}</td>
+                            @endif
+                            <td>{{ $data->ph_air }}</td>
                         </tr>
-                        <tr>
-                            <td>12-04-2024</td>
-                            <td>12.20 WIB</td>
-                            <td>30 C</td>
-                        </tr>
-                        <tr>
-                            <td>12-04-2024</td>
-                            <td>12.20 WIB</td>
-                            <td>30 C</td>
-                        </tr>
-                        <tr>
-                            <td>12-04-2024</td>
-                            <td>12.20 WIB</td>
-                            <td>30 C</td>
-                        </tr>
-                        <tr>
-                            <td>12-04-2024</td>
-                            <td>12.20 WIB</td>
-                            <td>30 C</td>
-                        </tr>
-                        <tr>
-                            <td>12-04-2024</td>
-                            <td>12.20 WIB</td>
-                            <td>30 C</td>
-                        </tr>
-                        <tr>
-                            <td>12-04-2024</td>
-                            <td>12.20 WIB</td>
-                            <td>30 C</td>
-                        </tr>
-                    </tbody>
+                    @endforeach
+                </tbody>
                 </table>
+                    <nav aria-label="Page navigation example">
+                        <ul class="pagination justify-content-center">
+                            {{-- Previous Page Link --}}
+                            @if ($riwayatPh->onFirstPage())
+                                <li class="page-item disabled">
+                                    <span class="page-link">Previous</span>
+                                </li>
+                            @else
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $riwayatPh->previousPageUrl() }}"
+                                        tabindex="-1">Previous</a>
+                                </li>
+                            @endif
+
+                            {{-- Pagination Elements --}}
+                            @for ($i = max(1, $riwayatPh->currentPage() - 3); $i <= min($riwayatPh->lastPage(), $riwayatPh->currentPage() + 3); $i++)
+                                @if (is_string($i))
+                                    <li class="page-item disabled">
+                                        <span class="page-link">{{ $i }}</span>
+                                    </li>
+                                @else
+                                    <li class="page-item {{ $riwayatPh->currentPage() == $i ? 'active' : '' }}">
+                                        <a class="page-link" href="{{ $riwayatPh->url($i) }}">{{ $i }}</a>
+                                    </li>
+                                @endif
+                            @endfor
+
+                            {{-- Next Page Link --}}
+                            @if ($riwayatPh->hasMorePages())
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $riwayatPh->nextPageUrl() }}">Next</a>
+                                </li>
+                            @else
+                                <li class="page-item disabled">
+                                    <span class="page-link">Next</span>
+                                </li>
+                            @endif
+                        </ul>
+                    </nav>
+                </div>
             </div>
         </div>
     </div>
-</div>
 @endsection
+
 @section('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    function filter(){
-            let filter = document.getElementById('filter').value
-            let riwayat = document.getElementById('riwayat')
-            if (filter == 'jam'){
-                filterByJam(riwayat)
-            }else if(filter == 'hari'){
-                filterByHari(riwayat)
-            }else{
-                filterByBulan(riwayat)
-            }
+    function filterPh() {
+        let filter = document.getElementById('filter').value;
+        let url = '/riwayat-ph';
+        if (filter !== '') {
+            url += '?filter=' + filter;
         }
-
-        function filterByJam(riwayat) {
-            riwayat.innerHTML = `
-                <table class="table">
-                    <thead style="background-color: gainsboro">
-                        <tr>
-                            <th>Tanggal</th>
-                            <th>Jam</th>
-                            <th>pH</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>12-04-2024</td>
-                            <td>12.20 WIB</td>
-                            <td>30 C</td>
-                        </tr>
-                        <tr>
-                            <td>12-04-2024</td>
-                            <td>12.20 WIB</td>
-                            <td>30 C</td>
-                        </tr>
-                        <tr>
-                            <td>12-04-2024</td>
-                            <td>12.20 WIB</td>
-                            <td>30 C</td>
-                        </tr>
-                        <tr>
-                            <td>12-04-2024</td>
-                            <td>12.20 WIB</td>
-                            <td>30 C</td>
-                        </tr>
-                        <tr>
-                            <td>12-04-2024</td>
-                            <td>12.20 WIB</td>
-                            <td>30 C</td>
-                        </tr>
-                        <tr>
-                            <td>12-04-2024</td>
-                            <td>12.20 WIB</td>
-                            <td>30 C</td>
-                        </tr>
-                        <tr>
-                            <td>12-04-2024</td>
-                            <td>12.20 WIB</td>
-                            <td>30 C</td>
-                        </tr>
-                    </tbody>
-                </table>
-            `
-        }
-
-        function filterByHari(riwayat) {
-            riwayat.innerHTML = `
-                <table class="table">
-                    <thead style="background-color: gainsboro">
-                        <tr>
-                            <th>Hari</th>
-                            <th>Tanggal</th>
-                            <th>pH</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Senin</td>
-                            <td>12-04-2024</td>
-                            <td>30 C</td>
-                        </tr>
-                        <tr>
-                            <td>Senin</td>
-                            <td>12-04-2024</td>
-                            <td>30 C</td>
-                        </tr>
-                        <tr>
-                            <td>Senin</td>
-                            <td>12-04-2024</td>
-                            <td>30 C</td>
-                        </tr>
-                    </tbody>
-                </table>
-            `
-        }
-
-        function filterByBulan(riwayat) {
-            riwayat.innerHTML = `
-                <table class="table">
-                    <thead style="background-color: gainsboro">
-                        <tr>
-                            <th>Tahun</th>
-                            <th>Bulan</th>
-                            <th>pH</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>2024</td>
-                            <td>Januari</td>
-                            <td>30 C</td>
-                        </tr>
-                        <tr>
-                            <td>2024</td>
-                            <td>Februari</td>
-                            <td>30 C</td>
-                        </tr>
-                        <tr>
-                            <td>2024</td>
-                            <td>Maret</td>
-                            <td>30 C</td>
-                        </tr>
-                    </tbody>
-                </table>
-            `
-        }
+        window.location.href = url;
+    }
 </script>
 @endsection

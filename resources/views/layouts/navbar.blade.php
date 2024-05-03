@@ -80,7 +80,7 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     
-    function addNotification(date, suhu, minSuhu, maxSuhu) {
+    function addNotification(suhu, minSuhu, maxSuhu) {
         var dropdownMenu = document.getElementById('alertsDropdown');
         var notificationLink = document.getElementById('notificationLink');
 

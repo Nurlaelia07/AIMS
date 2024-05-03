@@ -28,13 +28,18 @@ class PhController extends Controller
                     ->orderBy(Ph::raw('HOUR(waktu)'), 'desc');
                     break;
     
-                case 'hari':
-                    $riwayatPh->select(
-                        Ph::raw('DATE_FORMAT(tanggal, "%Y-%m-%d") as tanggal'),
-                        Ph::raw('AVG(ph_air as ph')
-                    )
-                    ->groupBy(Ph::raw('DATE_FORMAT(tanggal, "%Y-%m-%d")'))
-                    ->orderBy(Ph::raw('DATE_FORMAT(tanggal, "%Y-%m-%d")'), 'desc');
+                    case 'hari':
+                        $riwayatPh->select(
+                            Ph::raw('DATE_FORMAT(tanggal, "%Y-%m-%d") as tanggal'),
+                            Ph::raw('DAYNAME(tanggal) as hari'),
+                            Ph::raw('AVG(ph_air) as ph')
+                        )
+                        ->groupBy(Ph::raw('DATE_FORMAT(tanggal, "%Y-%m-%d")'), Ph::raw('hari')) 
+                        ->orderBy(Ph::raw('tanggal'), 'desc'); 
+    
+                    $riwayatPh->orderByRaw("FIELD(hari, " . implode(',', array_map(function($day) {
+                        return "'" . trans('day.' . strtolower($day)) . "'";
+                    }, ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'])) . ")");
                     break;
     
                     case 'bulan':

@@ -99,61 +99,160 @@
     </div>
 </div>
 @endsection
+
 @section('scripts')
 <script>
-    const xValues = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000];
+    var parameterElement = document.getElementById('parameter');
+    <?php
+        $conn = mysqli_connect("127.0.0.1", "root" , "", "aims"); 
+        $parameter = mysqli_query($conn, "SELECT min_ph_air, max_ph_air FROM parameter_ph_air");
+        $max = array();
+        $min = array();
+        while ($data_parameter = mysqli_fetch_array($parameter)) {
+            $min[] = $data_parameter['min_ph_air'];
+            $max[] = $data_parameter['max_ph_air'];
+        }
+    ?>
+    var min = <?php echo json_encode($min); ?>[0];
+    var max = <?php echo json_encode($max); ?>[0];
+    var temperatureRange = min + '&nbsp; -&nbsp;' + max + '&nbsp;';
 
-        new Chart("grafik-suhu-terkini", {
-            type: "line",
-            data: {
-                labels: xValues,
-                datasets: [{
-                    data: [2000, 3000, 2000, 4000, 2000, 3000, 4000, 7000, 3000, 2500, 2800],
-                    borderColor: "red",
-                    backgroundColor: 'rgba(255, 0, 0, 0.1)',
-                    fill: true,
-                    borderWidth: 1
-                }, {
-                    data: [1000, 1700, 1500, 1400, 1600, 1800, 1600, 1300, 1800, 1700, 1400],
-                    borderColor: "green",
-                    backgroundColor: 'rgba(0, 255, 0, 0.1)',
-                    fill: true,
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                legend: {
-                    display: false
-                }
-            }
-        });
+    parameterElement.innerHTML = temperatureRange;
 </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var maxPhInput = document.getElementById('max_ph_air');
+        var minPhInput = document.getElementById('min_ph_air');
+        var perbaruiButton = document.getElementById('btn-perbarui');
+    
+        function checkInputs() {
+            var maxPhValue = maxPhInput.value.trim();
+            var minPhValue = minPhInput.value.trim();
+        
+            if (maxPhValue !== '' || minPhValue !== '') {
+                perbaruiButton.disabled = false;
+            } else {
+                perbaruiButton.disabled = true;
+            }
+        }
+        perbaruiButton.disabled = true;
+
+        maxPhInput.addEventListener('input', checkInputs);
+        minPhInput.addEventListener('input', checkInputs);
+    });
+    </script>
+
+<script src="https://bernii.github.io/gauge.js/dist/gauge.min.js"></script>
 <script>
-    const yValues = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000];
+    var opts = {
+        angle: -0.2,
+        lineWidth: 0.2,
+        radiusScale: 1,
+        pointer: {
+            length: 0.6,
+            strokeWidth: 0.024,
+            color: '#000000'
+        },
+        limitMax: false,
+        limitMin: false,
+        colorStart: '#F7C35F',
+        colorStop: '#F7C35F',
+        strokeColor: '#EEEEEE',
+        generateGradient: true,
+        highDpiSupport: true,
+    };
 
-        new Chart("grafikSuhu24jam", {
-            type: "line",
-            data: {
-                labels: yValues,
-                datasets: [{
-                    data: [2000, 3000, 2000, 4000, 2000, 3000, 4000, 7000, 3000, 2500, 2800],
-                    borderColor: "red",
-                    backgroundColor: 'rgba(255, 0, 0, 0.1)',
-                    fill: true,
-                    borderWidth: 1
-                }, {
-                    data: [1000, 1700, 1500, 1400, 1600, 1800, 1600, 1300, 1800, 1700, 1400],
-                    borderColor: "green",
-                    backgroundColor: 'rgba(0, 255, 0, 0.1)',
-                    fill: true,
-                    borderWidth: 1
-                }]
+    var target = document.getElementById('barometer-ph');
+    var gauge = new Gauge(target).setOptions(opts);
+    gauge.maxValue = 100;
+    gauge.setMinValue(0);
+    gauge.animationSpeed = 32;
+
+    
+    var ppm = <?php echo $latestPpm->ppm_air; ?>;
+    gauge.set(ppm);
+
+    function updateGauge(ppm) {
+        gauge.set(ppm); 
+    }
+
+
+    function fetchLatestPh() {
+        $.ajax({
+            url: '/ph',
+            method: 'GET',
+            success: function(response) {
+                const ph = response.ph; 
+                updateGauge(ph); 
             },
-            options: {
-                legend: {
-                    display: false
-                }
+            error: function(xhr, status, error) {
+                console.error('Error fetching latest ph:', error);
             }
         });
+    }
+
+    // setInterval(fetchLatestPh, 5000);
 </script>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    function updatePpmDisplay(ph) {
+        $('#ppm').text(ph + ' °C'); 
+    }
+    updatePpmDisplay(<?php echo $latestPpm->ppm_air; ?>);
+
+    function fetchLatestPpm() {
+        $.ajax({
+            url: '/ppm', 
+            method: 'GET',
+            success: function(response) {
+                const ph = response.ph;
+                updatePhDisplay(ph);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error fetching latest ph:', error);
+            }
+        });
+    }
+
+    // setInterval(fetchLatestph_air, 5000);
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('grafik-ppm');
+    const labels = [];
+    const ppmData = [];
+    <?php
+        $conn = mysqli_connect("127.0.0.1", "root" , "", "aims"); 
+        $ppm = mysqli_query($conn, "SELECT waktu, ppm_air FROM ppm_air WHERE waktu >= NOW() - INTERVAL 1 DAY ORDER BY waktu ASC");
+        while ($data_ppm = mysqli_fetch_array($ppm)) {
+            echo "labels.push('".$data_ppm['waktu']."');";
+            echo "ppmData.push(".$data_ppm['ppm_air'].");";
+        }
+    ?>
+
+    const data = {
+        labels: labels,
+        datasets: [{
+            label: 'Grafik Ppm 24 Jam',
+            data: phData,
+            fill: false,
+            borderColor: '#F7C35F',
+            tension: 0.1
+        }]
+    };
+
+    const config = {
+        type: 'line',
+        data: data,
+    };
+
+    const myChart = new Chart(ctx, config);
+</script>
+
 @endsection

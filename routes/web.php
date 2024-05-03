@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\SuhuController;
 use App\Http\Controllers\PhController;
+use App\Http\Controllers\PpmController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\UserController;
 
@@ -32,10 +33,10 @@ Route::post('/ph', [PhController::class, 'updateparameterph']);
 
 Route::get('/riwayat-ph', [PhController::class, 'index'])->name('ph.riwayat');
 
-Route::get('/ppm', [PhController::class, 'latestPh']);
-Route::post('/ppm', [PhController::class, 'updateparameterph']);
+Route::get('/ppm', [PpmController::class, 'latestPpm']);
+Route::post('/ppm', [PpmController::class, 'updateparameterppm']);
 
-Route::get('/riwayat-ppm', [PhController::class, 'index'])->name('ph.riwayat');
+Route::get('/riwayat-ppm', [PpmController::class, 'index'])->name('ppm.riwayat');
 
 
 Route::get('/register', [UserController::class, 'register'])->name('register');
