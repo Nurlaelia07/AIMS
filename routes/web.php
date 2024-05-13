@@ -5,6 +5,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\SuhuController;
 use App\Http\Controllers\PhController;
 use App\Http\Controllers\PpmController;
+use App\Http\Controllers\DataController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\UserController;
 
@@ -21,6 +22,9 @@ proses yang akan dilakukan sebelum diarahkan ke suatu halaman/view
 
 
 // Route::get('/', [UserController::class, 'welcome'])->name('welcome');
+Route::post('/store-data', [DataController::class, 'store']);
+Route::get('/store-data', [DataController::class, 'store']);
+
 Route::get('/home', [HomeController::class, 'homeData'])->name('home');
 
 Route::get('/suhu', [SuhuController::class, 'latestSuhu']);
@@ -47,3 +51,8 @@ Route::post('/home', [UserController::class, 'login'])->middleware('web')->name(
 Route::post('/', [UserController::class, 'logout'])->name('logout');
 
 Route::get('/get-notif', [NotificationController::class, 'checkNotifications'])->name('notifications');
+// Route::get('/test',[App\Http\Controllers\Ph::class,'index']);
+// Route::get('/test',function(){
+//     $ph = App\Models\Ph::where('id',1)->first();
+// });
+

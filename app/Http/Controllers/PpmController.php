@@ -99,7 +99,7 @@ class PpmController extends Controller
         return redirect()->back()->with('success', 'Parameter Ppm berhasil diperbarui.');
     } catch (\Illuminate\Database\QueryException $e) {
         return redirect()->back()->with('error', 'Terjadi kesalahan saat memperbarui parameter Ppm: ' . $e->getMessage());
-    } catch (Exception $e) {
+    } catch (\Exception $e) {
         return redirect()->back()->with('error', 'Terjadi kesalahan saat memperbarui parameter Ppm.');
     }
     }

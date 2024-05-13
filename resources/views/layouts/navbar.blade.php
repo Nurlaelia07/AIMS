@@ -46,7 +46,7 @@
                 </h6>
                 <a id="notificationLink" class="dropdown-item d-flex align-items-center" href="#">
                 </a>
-        <a class="dropdown-item text-center small text-gray-500">Mark all as read</a>
+        <a id="markAllAsRead" class="dropdown-item text-center small text-gray-500">Mark all as read</a>
             </div>
         </li>
 
@@ -79,22 +79,21 @@
 <!-- End of Topbar -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    
-    function addNotification(suhu, minSuhu, maxSuhu) {
-        var dropdownMenu = document.getElementById('alertsDropdown');
-        var notificationLink = document.getElementById('notificationLink');
+        // Function to add notification
+        function addNotification(suhu, minSuhu, maxSuhu) {
+            var dropdownMenu = document.getElementById('alertsDropdown');
+            var notificationLink = document.getElementById('notificationLink');
+            var notificationContent = '';
 
-    
-        var message = '';
-        if (suhu > maxSuhu) {
-            message = 'Suhu diatas parameter. Segera tambahkan air dingin dan dinginkan instalasi';
-        } else if (suhu < minSuhu) {
-            message = 'Suhu dibawah parameter. Segera tambahkan air hangat dan hangatkan instalasi';
-        }
-        
-    
-        if (message !== '') {
-            var notificationContent = `
+            var message = '';
+            if (suhu > maxSuhu) {
+                message = 'Suhu di atas parameter. Segera tambahkan air dingin dan dinginkan instalasi';
+            } else if (suhu < minSuhu) {
+                message = 'Suhu di bawah parameter. Segera tambahkan air hangat dan hangatkan instalasi';
+            }
+
+            if (message !== '') {
+                notificationContent = `
                 <div class="mr-3">
                     <div class="icon-circle bg-warning">
                         <i class="fas fa-exclamation-triangle text-white"></i>
@@ -105,32 +104,41 @@
                     Suhu: ${suhu}°C - ${message}
                 </div>
             `;
-            
-        } else {
-            
+            } else {
+                notificationContent = 'Tidak ada notifikasi';
+            }
+
+            notificationLink.innerHTML = notificationContent;
+            updateCounter();
         }
 
-       
-        notificationLink.innerHTML = notificationContent;
+        // Function to update counter
+        function updateCounter() {
+            var badgeCounter = document.getElementById('badgeCounter');
+            var notificationLink = document.getElementById('notificationLink');
 
-        updateCounter();
-    }
-
-    function updateCounter() {
-        var badgeCounter = document.getElementById('badgeCounter');
-        var notificationCount = document.querySelectorAll('#notificationLink').length;
-
-        // Periksa jumlah notifikasi
-        if (notificationCount > 0) {
-            badgeCounter.textContent = notificationCount;
-            badgeCounter.style.display = 'block';
-        } else {
-            badgeCounter.style.display = 'none';
+            if (notificationLink.textContent === 'Tidak ada notifikasi') {
+                badgeCounter.style.display = 'none';
+            } else {
+                badgeCounter.textContent = 1;
+                badgeCounter.style.display = 'block';
+            }
         }
-    }
 
-    
-    <?php
+        // Function to handle marking all notifications as read
+        function markAllAsRead() {
+            var notificationLink = document.getElementById('notificationLink');
+            notificationLink.innerHTML = 'Tidak ada notifikasi';
+            updateCounter();
+        }
+
+        // Event listener for "Mark all as read" link
+        document.getElementById('markAllAsRead').addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent the default link behavior (i.e., navigating to another page)
+            markAllAsRead(); // Call the function to mark all notifications as read
+        });
+
+        <?php
             $conn = mysqli_connect("127.0.0.1", "root" , "", "aims");
             $parameter = mysqli_query($conn, "SELECT min_suhu, max_suhu FROM parameter_suhu");
             $parameterData = [];
@@ -141,11 +149,20 @@
             $suhuData = mysqli_fetch_assoc($suhunotif);
             mysqli_close($conn);
         ?>
-    var suhu = <?php echo $suhuData['suhu']; ?>;
-    var minSuhu = <?php echo $parameterData[0]['min_suhu']; ?>;
-    var maxSuhu = <?php echo $parameterData[0]['max_suhu']; ?>;
-    addNotification(suhu, minSuhu, maxSuhu);
-</script>
+        var suhu = <?php echo isset($suhuData['suhu']) ? $suhuData['suhu'] : '0'; ?>;
+        var minSuhu = <?php echo isset($parameterData[0]['min_suhu']) ? $parameterData[0]['min_suhu'] : '0'; ?>;
+        var maxSuhu = <?php echo isset($parameterData[0]['max_suhu']) ? $parameterData[0]['max_suhu'] : '0'; ?>;
+
+        // Check if suhu is within the normal range
+        if (suhu >= minSuhu || suhu <= maxSuhu) {
+            addNotification(suhu, minSuhu, maxSuhu);
+        } else {
+            // If suhu is not within the normal range, no need to show any notification
+            document.getElementById('notificationLink').innerHTML = 'Tidak ada notifikasi';
+            updateCounter();
+        }
+    </script>
+
 
 
 

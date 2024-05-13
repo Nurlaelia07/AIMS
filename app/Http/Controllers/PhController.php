@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Lang;
 use App\Models\Ph;
 use App\Models\ParameterPh;
 use App\Models\Control;
@@ -21,7 +22,7 @@ class PhController extends Controller
                     $riwayatPh->select(
                         'tanggal',
                         Ph::raw('HOUR(waktu) as jam'),
-                        Ph::raw('AVG(ph_air) as ph')
+                        Ph::raw('AVG(ph_air) as ph_air')
                     )
                     ->groupBy('tanggal', Ph::raw('HOUR(waktu)'))
                     ->orderBy('tanggal', 'desc')
@@ -32,7 +33,7 @@ class PhController extends Controller
                         $riwayatPh->select(
                             Ph::raw('DATE_FORMAT(tanggal, "%Y-%m-%d") as tanggal'),
                             Ph::raw('DAYNAME(tanggal) as hari'),
-                            Ph::raw('AVG(ph_air) as ph')
+                            Ph::raw('AVG(ph_air) as ph_air')
                         )
                         ->groupBy(Ph::raw('DATE_FORMAT(tanggal, "%Y-%m-%d")'), Ph::raw('hari')) 
                         ->orderBy(Ph::raw('tanggal'), 'desc'); 
@@ -46,7 +47,7 @@ class PhController extends Controller
                         $riwayatPh->select(
                             Ph::raw('YEAR(tanggal) as tahun'),
                             Ph::raw("MONTHNAME(tanggal) as bulan"),
-                            Ph::raw('AVG(ph_air) as ph')
+                            Ph::raw('AVG(ph_air) as ph_air')
                         )
                         ->groupBy(Ph::raw('YEAR(tanggal)'), Ph::raw('MONTHNAME(tanggal)'))
                         ->orderBy(Ph::raw('YEAR(tanggal)'), 'desc')
@@ -94,19 +95,35 @@ class PhController extends Controller
 
     public function updateparameterph(Request $request)
     {
-      try {
+
+    try {
+        $request->validate([
+            'max_ph_air' => 'nullable|numeric',
+            'min_ph_air' => 'nullable|numeric',
+        ]);
+
+        if (!$request->filled('max_ph_air') && !$request->filled('min_ph_air')) {
+            return redirect()->back()->with('error', 'Minimal satu bidang harus diisi.');
+        }
+
         $parameter = ParameterPh::find(1);
-        $maxPh = $request->input('max_ph_air');
-        $minPh = $request->input('min_ph_air');
-        $parameter->max_ph_air = $maxPh;
-        $parameter->min_ph_air = $minPh;
+
+        if ($request->filled('max_ph_air')) {
+            $parameter->max_ph_air = $request->max_ph_air;
+        }
+
+        if ($request->filled('min_ph_air')) {
+            $parameter->min_ph_air = $request->min_ph_air;
+        }
+
         $parameter->save();
-        return redirect()->back()->with('success', 'Parameter Ph berhasil diperbarui.');
+        return redirect()->back()->with('success', 'Parameter ph berhasil diperbarui.');
     } catch (\Illuminate\Database\QueryException $e) {
-        return redirect()->back()->with('error', 'Terjadi kesalahan saat memperbarui parameter Ph: ' . $e->getMessage());
+        return redirect()->back()->with('error', 'Terjadi kesalahan saat memperbarui parameter ph: ' . $e->getMessage());
     } catch (Exception $e) {
-        return redirect()->back()->with('error', 'Terjadi kesalahan saat memperbarui parameter Ph.');
+        return redirect()->back()->with('error', 'Terjadi kesalahan saat memperbarui parameter ph: ' . $e->getMessage());
     }
+
     }
 
     // public function tampilparameterPh()

@@ -71,14 +71,13 @@
                     </button>
                 </div>
                 <div class="modal-body p-4">
-                    <li>Berdasarkan data pada pukul 07.00 hingga 17.00 suhu berada di bawah ambang batas.
-                    </li>
-                    <li>Berdasarkan data pada pukul 17.00 hingga 03.00 suhu berada di ambang normal.</li>
+                    <ul id="suhuMessage">
+                    </ul>
                 </div>
-                <div class="modal-footer" style="background-color: #23AF4F; text-align: center;">
-                    <button type="button" style="align-items: center; text-align: center; align-content: center"
-                        class="btn text-white" data-dismiss="modal">OK</button>
+                <div class="modal-footer" style="background-color: #23AF4F; text-align: center; display: flex; justify-content: center;">
+                    <button type="button" class="btn text-white" data-dismiss="modal">OK</button>
                 </div>
+
             </div>
         </div>
     </div>
@@ -93,7 +92,7 @@
                     <i class="fas fa-check text-white text-center" style="font-size: 50px;"></i>
                 </h1>
                 <h3 class="text-white text-center mt-4">Success</h3>
-                <p class="text-center text-white mt-3">Anda berhasil memperbarui parameter pH!</p>
+                <p class="text-center text-white mt-3">Anda berhasil memperbarui parameter suhu!</p>
             </div>
         </div>
     </div>
@@ -148,6 +147,97 @@ document.addEventListener('DOMContentLoaded', function() {
 
 });
 </script>
+
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var modalBody = document.getElementById('suhuMessage');
+    <?php
+$conn = mysqli_connect("127.0.0.1", "root" , "", "aims");
+$parameter = mysqli_query($conn, "SELECT min_suhu, max_suhu FROM parameter_suhu");
+$parameterData = mysqli_fetch_assoc($parameter); // Mengambil satu baris data
+
+// Periksa apakah data berhasil diambil
+if ($parameterData) {
+    $min_suhu = $parameterData['min_suhu'];
+    $max_suhu = $parameterData['max_suhu'];
+
+    // Query data suhu
+    $suhunotif = mysqli_query($conn, "SELECT waktu, suhu FROM suhu ORDER BY id_suhu DESC");
+    $suhuData = mysqli_fetch_all($suhunotif, MYSQLI_ASSOC);
+
+    // Inisialisasi pesan dan saran
+    $pesan_max_suhu = '';
+    $pesan_min_suhu = '';
+    $saran_max_suhu = '';
+    $saran_min_suhu = '';
+    $interval_waktu_max_suhu = array();
+    $interval_waktu_min_suhu = array();
+
+    // Looping data suhu untuk analisis
+    foreach ($suhuData as $data) {
+        $waktu = date('H:i', strtotime($data['waktu'])); // Ambil jam dan menit dari timestamp
+        $suhu = $data['suhu'];
+
+        // Analisis suhu
+        if ($suhu > $max_suhu) {
+            $interval_waktu_max_suhu[] = $waktu; // Format jam dan menit
+        } elseif ($suhu < $min_suhu) {
+            $interval_waktu_min_suhu[] = $waktu; // Format jam dan menit
+        }
+    }
+
+    // Hilangkan duplikasi dan urutkan interval waktu
+    $interval_waktu_max_suhu = array_unique($interval_waktu_max_suhu);
+    sort($interval_waktu_max_suhu);
+    $interval_waktu_min_suhu = array_unique($interval_waktu_min_suhu);
+    sort($interval_waktu_min_suhu);
+
+    // Buat pesan berdasarkan interval waktu
+    if (!empty($interval_waktu_max_suhu)) {
+        $pesan_max_suhu = "Berdasarkan data pada jam " . implode(" - ", $interval_waktu_max_suhu) . " suhu berada di atas ambang batas.";
+    }
+
+    if (!empty($interval_waktu_min_suhu)) {
+        $pesan_min_suhu = "Berdasarkan data pada jam " . implode(" - ", $interval_waktu_min_suhu) . " suhu berada di bawah ambang batas.";
+    }
+
+    // Buat pesan saran untuk suhu di atas ambang batas
+    if (!empty($interval_waktu_max_suhu)) {
+        $saran_max_suhu = "Tambahkan air dingin pada jam " . implode(" - ", $interval_waktu_max_suhu) . ".";
+    } else {
+        $saran_max_suhu = "Tidak ada saran tambahan untuk suhu di atas ambang batas.";
+    }
+
+    // Buat pesan saran untuk suhu di bawah ambang batas
+    if (!empty($interval_waktu_min_suhu)) {
+        $saran_min_suhu = "Tambahkan air hangat pada jam " . implode(" - ", $interval_waktu_min_suhu) . ".";
+    } else {
+        $saran_min_suhu = "Tidak ada saran tambahan untuk suhu di bawah ambang batas.";
+    }
+}
+
+mysqli_close($conn);
+?>
+
+
+
+    var pesanMaxSuhuPHP = "<?php echo $pesan_max_suhu; ?>"; // Ambil pesan untuk suhu di atas ambang batas dari PHP
+    var pesanMinSuhuPHP = "<?php echo $pesan_min_suhu; ?>"; // Ambil pesan untuk suhu di bawah ambang batas dari PHP
+    var saranMaxSuhuPHP = "<?php echo $saran_max_suhu; ?>"; // Ambil saran untuk suhu di atas ambang batas dari PHP
+    var saranMinSuhuPHP = "<?php echo $saran_min_suhu; ?>"; // Ambil saran untuk suhu di bawah ambang batas dari PHP
+
+    // Menampilkan pesan dan saran
+    modalBody.innerHTML += '<li>' + pesanMaxSuhuPHP + '</li>';
+    modalBody.innerHTML += '<li>' + pesanMinSuhuPHP + '</li>';
+    modalBody.innerHTML += '<h5 style="margin-top: 40px;">Saran</h5>';
+    modalBody.innerHTML += '<li>' + saranMaxSuhuPHP + '</li>';
+    modalBody.innerHTML += '<li>' + saranMinSuhuPHP + '</li>';
+});
+</script>
+
 
 <script src="https://bernii.github.io/gauge.js/dist/gauge.min.js"></script>
 <script>

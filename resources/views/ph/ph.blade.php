@@ -23,14 +23,14 @@
     <div class="row mt-4">
         <h4 class="mb-3">Parameter pH</h4>
         <div class="col-md-5">
-        <form action="" method="post">
+         <form action="" method="post">
                 @csrf
-                    <input type="text" class="form-control bg-light" placeholder="Masukkan parameter atas" name="max_ph_air" id="max_ph_air" style="border-radius: 15px">
-                    <input type="text" class="form-control bg-light mt-3" placeholder="Masukkan parameter bawah" name="min_ph_air" id="min_ph_air" style="border-radius: 15px">
+                    <input type="text" class="form-control bg-light" placeholder="Masukkan parameter batas maksimum pH Air" name="max_ph_air" id="max_ph_air" style="border-radius: 15px">
+                    <input type="text" class="form-control bg-light mt-3" placeholder="Masukkan parameter batas minimum pH Air" name="min_ph_air" id="min_ph_air" style="border-radius: 15px">
                 <div class="row mt-3">
                     <div class="col-md-8">
                         <div class="card">
-                            <h5 class="mt-3 ms-3">Parameter</h5>
+                            <h5 class="mt-3 ms-3">Interval Parameter</h5>
                             <p id="parameter" class="ms-3"></p>
                         </div>
                     </div>
@@ -40,6 +40,7 @@
                     </div>
                 </div>
                 </form>
+                
         </div>
     </div>
 
@@ -47,7 +48,7 @@
             <div class="col-md-6">
                 <div class="card p-3">
                     <h5 class="text-center mb-3">Ph Terkini</h5>
-                    <canvas id="barometer-ph" style="width:60%;max-width:600px;display: block;margin: 0 auto;"></canvas>
+                    <canvas id="barometer-ph" style="width:80%;max-width:600px;display: block;margin: 0 auto;"></canvas>
                     <h3 id="ph" class="text-center mb-3"></h3>
                 </div>
             </div>
@@ -71,14 +72,13 @@
                 </button>
             </div>
             <div class="modal-body p-4">
-                <li>Berdasarkan data pada pukul 07.00 hingga 17.00 suhu berada di bawah ambang batas.
-                </li>
-                <li>Berdasarkan data pada pukul 17.00 hingga 03.00 suhu berada di ambang normal.</li>
+                <ul id="phMessage">
+                    </ul>
             </div>
-            <div class="modal-footer" style="background-color: #23AF4F; text-align: center;">
-                <button type="button" style="align-items: center; text-align: center; align-content: center"
-                    class="btn text-white" data-dismiss="modal">OK</button>
-            </div>
+            <div class="modal-footer" style="background-color: #23AF4F; text-align: center; display: flex; justify-content: center;">
+                    <button type="button" class="btn text-white" data-dismiss="modal">OK</button>
+                </div>
+
         </div>
     </div>
 </div>
@@ -99,6 +99,7 @@
     </div>
 </div>
 @endsection
+
 @section('scripts')
 <script>
     var parameterElement = document.getElementById('parameter');
@@ -119,7 +120,7 @@
     parameterElement.innerHTML = temperatureRange;
 </script>
 
-    <script>
+<script>
     document.addEventListener('DOMContentLoaded', function() {
         var maxPhInput = document.getElementById('max_ph_air');
         var minPhInput = document.getElementById('min_ph_air');
@@ -141,6 +142,94 @@
         minPhInput.addEventListener('input', checkInputs);
     });
     </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var modalBody = document.getElementById('phMessage');
+        <?php
+        $conn = mysqli_connect("127.0.0.1", "root" , "", "aims");
+        $parameter = mysqli_query($conn, "SELECT min_ph_air, max_ph_air FROM parameter_ph_air");
+        $parameterData = mysqli_fetch_assoc($parameter); // Mengambil satu baris data
+
+        // Periksa apakah data berhasil diambil
+        if ($parameterData) {
+            $min_ph_air = $parameterData['min_ph_air'];
+            $max_ph_air = $parameterData['max_ph_air'];
+
+            // Query data pH
+            $ph_notif = mysqli_query($conn, "SELECT waktu, ph_air FROM ph_air ORDER BY id_ph DESC");
+            $phData = mysqli_fetch_all($ph_notif, MYSQLI_ASSOC);
+
+            // Inisialisasi pesan dan saran
+            $pesan_max_ph_air = '';
+            $pesan_min_ph_air = '';
+            $saran_max_ph_air = '';
+            $saran_min_ph_air = '';
+            $interval_waktu_max_ph_air = array();
+            $interval_waktu_min_ph_air = array();
+
+            // Looping data pH untuk analisis
+            foreach ($phData as $data) {
+                $waktu = date('H', strtotime($data['waktu'])); // Ambil jam dan menit dari timestamp
+                $ph_air = $data['ph_air'];
+
+                // Analisis pH
+                if ($ph_air > $max_ph_air) {
+                    $interval_waktu_max_ph_air[] = "$waktu.00"; // Format jam dan menit
+                } elseif ($ph_air < $min_ph_air) {
+                    $interval_waktu_min_ph_air[] = "$waktu.00"; // Format jam dan menit
+                }
+            }
+
+            // Hilangkan duplikasi dan urutkan interval waktu
+            $interval_waktu_max_ph_air = array_unique($interval_waktu_max_ph_air);
+            sort($interval_waktu_max_ph_air);
+            $interval_waktu_min_ph_air = array_unique($interval_waktu_min_ph_air);
+            sort($interval_waktu_min_ph_air);
+
+            // Buat pesan berdasarkan interval waktu
+            if (!empty($interval_waktu_max_ph_air)) {
+                $pesan_max_ph_air = "Berdasarkan data pada jam " . implode(" - ", $interval_waktu_max_ph_air) . " pH berada di atas ambang batas.";
+            }
+
+            if (!empty($interval_waktu_min_ph_air)) {
+                $pesan_min_ph_air = "Berdasarkan data pada jam " . implode(" - ", $interval_waktu_min_ph_air) . " pH berada di bawah ambang batas.";
+            } else {
+                $pesan_min_ph_air = "Tidak ada data pH di bawah ambang batas.";
+            }
+
+            // Buat pesan saran untuk pH di atas ambang batas
+            if (!empty($interval_waktu_max_ph_air)) {
+                $saran_max_ph_air = "Tambahkan penanganan pada jam " . implode(" - ", $interval_waktu_max_ph_air) . ".";
+            } else {
+                $saran_max_ph_air = "Tidak ada penanganan tambahan untuk pH di atas ambang batas.";
+            }
+
+            // Buat pesan saran untuk pH di bawah ambang batas
+            if (!empty($interval_waktu_min_ph_air)) {
+                $saran_min_ph_air = "Tambahkan penanganan pada jam " . implode(" - ", $interval_waktu_min_ph_air) . ".";
+            } else {
+                $saran_min_ph_air = "Tidak ada penanganan tambahan untuk pH di bawah ambang batas.";
+            }
+        }
+
+        mysqli_close($conn);
+        ?>
+
+        var pesanMaxPhPHP = "<?php echo $pesan_max_ph_air; ?>"; // Ambil pesan untuk pH di atas ambang batas dari PHP
+        var pesanMinPhPHP = "<?php echo $pesan_min_ph_air; ?>"; // Ambil pesan untuk pH di bawah ambang batas dari PHP
+        var saranMaxPhPHP = "<?php echo $saran_max_ph_air; ?>"; // Ambil saran untuk pH di atas ambang batas dari PHP
+        var saranMinPhPHP = "<?php echo $saran_min_ph_air; ?>"; // Ambil saran untuk pH di bawah ambang batas dari PHP
+
+        // Menampilkan pesan dan saran
+        modalBody.innerHTML += '<li>' + pesanMaxPhPHP + '</li>';
+        modalBody.innerHTML += '<li>' + pesanMinPhPHP + '</li>';
+        modalBody.innerHTML += '<h5 style="margin-top: 40px;">Saran</h5>';
+        modalBody.innerHTML += '<li>' + saranMaxPhPHP + '</li>';
+        modalBody.innerHTML += '<li>' + saranMinPhPHP + '</li>';
+    });
+</script>
+
 
 <script src="https://bernii.github.io/gauge.js/dist/gauge.min.js"></script>
 <script>
@@ -199,7 +288,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script>
     function updatePhDisplay(ph) {
-        $('#ph').text(ph + ' °C'); 
+        $('#ph').text(ph); 
     }
     updatePhDisplay(<?php echo $latestPh->ph_air; ?>);
 
