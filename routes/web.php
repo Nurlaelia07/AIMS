@@ -6,7 +6,6 @@ use App\Http\Controllers\SuhuController;
 use App\Http\Controllers\PhController;
 use App\Http\Controllers\PpmController;
 use App\Http\Controllers\DataController;
-use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\UserController;
 
 
@@ -29,16 +28,20 @@ Route::get('/home', [HomeController::class, 'homeData'])->name('home');
 
 Route::get('/suhu', [SuhuController::class, 'latestSuhu']);
 Route::post('/suhu', [SuhuController::class, 'updateparametersuhu']);
+Route::get('/parameter-suhu', [SuhuController::class, 'parameter']);
 
 Route::get('/riwayat-suhu', [SuhuController::class, 'index'])->name('suhu.riwayat');
 
 Route::get('/ph', [PhController::class, 'latestPh']);
 Route::post('/ph', [PhController::class, 'updateparameterph']);
+Route::get('/parameter-ph', [PhController::class, 'parameter']);
 
 Route::get('/riwayat-ph', [PhController::class, 'index'])->name('ph.riwayat');
 
 Route::get('/ppm', [PpmController::class, 'latestPpm']);
 Route::post('/ppm', [PpmController::class, 'updateparameterppm']);
+Route::get('/parameter-ppm', [PpmController::class, 'parameter']);
+
 
 Route::get('/riwayat-ppm', [PpmController::class, 'index'])->name('ppm.riwayat');
 
@@ -50,7 +53,7 @@ Route::get('/', [UserController::class, 'showLoginForm'])->name('login');
 Route::post('/home', [UserController::class, 'login'])->middleware('web')->name('login.submit');
 Route::post('/', [UserController::class, 'logout'])->name('logout');
 
-Route::get('/get-notif', [NotificationController::class, 'checkNotifications'])->name('notifications');
+// Route::get('/get-notif', [NotificationController::class, 'checkNotifications'])->name('notifications');
 // Route::get('/test',[App\Http\Controllers\Ph::class,'index']);
 // Route::get('/test',function(){
 //     $ph = App\Models\Ph::where('id',1)->first();

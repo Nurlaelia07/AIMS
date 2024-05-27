@@ -11,7 +11,7 @@ class ParameterSuhu extends Model
     use HasFactory;
 
     protected $table = 'parameter_suhu';
-    protected $primaryKey = 'id_paramater_suhu';
+    protected $primaryKey = 'id_parameter_suhu';
     public $timestamps = false;
 
     protected $fillable = [

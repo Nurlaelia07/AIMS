@@ -78,6 +78,17 @@ class PhController extends Controller
         return view('ph.ph',  ['latestPh'=> $latestPh]);
     }
 
+    public function parameter()
+    {
+        $parameters = ParameterPh::first();
+
+        if ($parameters) {
+            return response()->json($parameters);
+        } else {
+            return response()->json(['message' => 'Parameter not found'], 404);
+        }
+    }
+
     // public function homeData()
     // {
     //     $Ph = Ph::orderBy('id_Ph', 'desc')->first();
@@ -120,7 +131,7 @@ class PhController extends Controller
         return redirect()->back()->with('success', 'Parameter ph berhasil diperbarui.');
     } catch (\Illuminate\Database\QueryException $e) {
         return redirect()->back()->with('error', 'Terjadi kesalahan saat memperbarui parameter ph: ' . $e->getMessage());
-    } catch (Exception $e) {
+    } catch (\Exception $e) {
         return redirect()->back()->with('error', 'Terjadi kesalahan saat memperbarui parameter ph: ' . $e->getMessage());
     }
 

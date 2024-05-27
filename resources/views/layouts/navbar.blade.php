@@ -34,8 +34,8 @@
 
         <!-- Nav Item - Alerts -->
         <li class="nav-item dropdown no-arrow mx-1">
-            <a  class="nav-link dropdown-toggle" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <i  class="fas fa-bell fa-fw"></i>
+            <a class="nav-link dropdown-toggle" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-bell fa-fw"></i>
                 <!-- Counter - Alerts -->
                 <span id="badgeCounter" class="badge badge-danger badge-counter"></span>
             </a>
@@ -44,9 +44,12 @@
                 <h6 class="dropdown-header" style="background-color: #23AF4F; border: none">
                     Notifications
                 </h6>
-                <a id="notificationLink" class="dropdown-item d-flex align-items-center" href="#">
+                <a id="suhuNotificationLink" class="dropdown-item d-flex align-items-center" href="#">
                 </a>
-        <a id="markAllAsRead" class="dropdown-item text-center small text-gray-500">Mark all as read</a>
+                <a id="phNotificationLink" class="dropdown-item d-flex align-items-center" href="#">
+                </a>
+                <a id="ppmNotificationLink" class="dropdown-item d-flex align-items-center" href="#">
+                </a>
             </div>
         </li>
 
@@ -61,11 +64,6 @@
             </a>
             <!-- Dropdown - User Information -->
             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                {{-- <a class="dropdown-item" href="#">
-                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                    Profile
-                </a>
-                <div class="dropdown-divider"></div> --}}
                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
                     <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                     Logout
@@ -79,89 +77,166 @@
 <!-- End of Topbar -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-        // Function to add notification
-        function addNotification(suhu, minSuhu, maxSuhu) {
-            var dropdownMenu = document.getElementById('alertsDropdown');
-            var notificationLink = document.getElementById('notificationLink');
-            var notificationContent = '';
+    // Function to add notification for all parameters
+    function addNotification(suhu, minSuhu, maxSuhu, ph, minPh, maxPh, ppm, minPpm, maxPpm) {
+        var suhuNotificationLink = document.getElementById('suhuNotificationLink');
+        var phNotificationLink = document.getElementById('phNotificationLink');
+        var ppmNotificationLink = document.getElementById('ppmNotificationLink');
+        var notificationCount = 0;
 
-            var message = '';
-            if (suhu > maxSuhu) {
-                message = 'Suhu di atas parameter. Segera tambahkan air dingin dan dinginkan instalasi';
-            } else if (suhu < minSuhu) {
-                message = 'Suhu di bawah parameter. Segera tambahkan air hangat dan hangatkan instalasi';
-            }
-
-            if (message !== '') {
-                notificationContent = `
-                <div class="mr-3">
+        // Check suhu condition
+        if (suhu > maxSuhu) {
+            suhuNotificationLink.innerHTML = `
+                <div class="notification-item">
                     <div class="icon-circle bg-warning">
                         <i class="fas fa-exclamation-triangle text-white"></i>
                     </div>
-                </div>
-                <div>
-                    <div class="small text-gray-500"></div>
-                    Suhu: ${suhu}°C - ${message}
+                    <div class="small text-gray-500">
+                        Suhu: ${suhu}°C - Suhu di atas parameter. Segera tambahkan air dingin dan dinginkan instalasi
+                    </div>
                 </div>
             `;
-            } else {
-                notificationContent = 'Tidak ada notifikasi';
-            }
-
-            notificationLink.innerHTML = notificationContent;
-            updateCounter();
+            notificationCount++;
+        } else if (suhu < minSuhu) {
+            suhuNotificationLink.innerHTML = `
+                <div class="notification-item">
+                    <div class="icon-circle bg-warning">
+                        <i class="fas fa-exclamation-triangle text-white"></i>
+                    </div>
+                    <div class="small text-gray-500">
+                        Suhu: ${suhu}°C - Suhu di bawah parameter. Segera tambahkan air hangat dan hangatkan instalasi
+                    </div>
+                </div>
+            `;
+            notificationCount++;
         }
 
-        // Function to update counter
-        function updateCounter() {
-            var badgeCounter = document.getElementById('badgeCounter');
-            var notificationLink = document.getElementById('notificationLink');
-
-            if (notificationLink.textContent === 'Tidak ada notifikasi') {
-                badgeCounter.style.display = 'none';
-            } else {
-                badgeCounter.textContent = 1;
-                badgeCounter.style.display = 'block';
-            }
+        // Check pH condition
+        if (ph > maxPh) {
+            phNotificationLink.innerHTML = `
+                <div class="notification-item">
+                    <div class="icon-circle bg-warning">
+                        <i class="fas fa-exclamation-triangle text-white"></i>
+                    </div>
+                    <div class="small text-gray-500">
+                        pH: ${ph} - pH di atas parameter. Segera Tambahkan Air
+                    </div>
+                </div>
+            `;
+            notificationCount++;
+        } else if (ph < minPh) {
+            phNotificationLink.innerHTML = `
+                <div class="notification-item">
+                    <div class="icon-circle bg-warning">
+                        <i class="fas fa-exclamation-triangle text-white"></i>
+                    </div>
+                    <div class="small text-gray-500">
+                        pH: ${ph} - pH di bawah parameter. Segera Tambahkan Cairan pH
+                    </div>
+                </div>
+            `;
+            notificationCount++;
         }
 
-        // Function to handle marking all notifications as read
-        function markAllAsRead() {
-            var notificationLink = document.getElementById('notificationLink');
-            notificationLink.innerHTML = 'Tidak ada notifikasi';
-            updateCounter();
+        // Check PPM condition
+        if (ppm > maxPpm) {
+            ppmNotificationLink.innerHTML = `
+                <div class="notification-item">
+                    <div class="icon-circle bg-warning">
+                        <i class="fas fa-exclamation-triangle text-white"></i>
+                    </div>
+                    <div class="small text-gray-500">
+                        PPM: ${ppm} - PPM di atas parameter. Segera lakukan penanganan
+                    </div>
+                </div>
+            `;
+            notificationCount++;
+        } else if (ppm < minPpm) {
+            ppmNotificationLink.innerHTML = `
+                <div class="notification-item">
+                    <div class="icon-circle bg-warning">
+                        <i class="fas fa-exclamation-triangle text-white"></i>
+                    </div>
+                    <div class="small text-gray-500">
+                        PPM: ${ppm} - PPM di bawah parameter. Segera lakukan penanganan
+                    </div>
+                </div>
+            `;
+            notificationCount++;
         }
 
-        // Event listener for "Mark all as read" link
-        document.getElementById('markAllAsRead').addEventListener('click', function(event) {
-            event.preventDefault(); // Prevent the default link behavior (i.e., navigating to another page)
-            markAllAsRead(); // Call the function to mark all notifications as read
-        });
+        // Update counter
+        updateCounter(notificationCount);
+    }
 
-        <?php
-            $conn = mysqli_connect("127.0.0.1", "root" , "", "aims");
-            $parameter = mysqli_query($conn, "SELECT min_suhu, max_suhu FROM parameter_suhu");
-            $parameterData = [];
-            while ($data_parameter = mysqli_fetch_assoc($parameter)) {
-                $parameterData[] = $data_parameter;
-            }
-            $suhunotif = mysqli_query($conn, "SELECT suhu FROM suhu ORDER BY id_suhu DESC LIMIT 1");
-            $suhuData = mysqli_fetch_assoc($suhunotif);
-            mysqli_close($conn);
-        ?>
-        var suhu = <?php echo isset($suhuData['suhu']) ? $suhuData['suhu'] : '0'; ?>;
-        var minSuhu = <?php echo isset($parameterData[0]['min_suhu']) ? $parameterData[0]['min_suhu'] : '0'; ?>;
-        var maxSuhu = <?php echo isset($parameterData[0]['max_suhu']) ? $parameterData[0]['max_suhu'] : '0'; ?>;
-
-        // Check if suhu is within the normal range
-        if (suhu >= minSuhu || suhu <= maxSuhu) {
-            addNotification(suhu, minSuhu, maxSuhu);
+    // Function to update counter
+    function updateCounter(count) {
+        var badgeCounter = document.getElementById('badgeCounter');
+        if (count === 0) {
+            badgeCounter.style.display = 'none';
         } else {
-            // If suhu is not within the normal range, no need to show any notification
-            document.getElementById('notificationLink').innerHTML = 'Tidak ada notifikasi';
-            updateCounter();
+            badgeCounter.textContent = count;
+            badgeCounter.style.display = 'block';
         }
-    </script>
+    }
+
+    // PHP Variables
+    <?php
+        $conn = mysqli_connect("127.0.0.1", "root", "", "aims");
+
+        // Retrieve parameter data for suhu, pH, and PPM
+        $suhu_parameter = mysqli_query($conn, "SELECT min_suhu, max_suhu FROM parameter_suhu");
+        $ph_parameter = mysqli_query($conn, "SELECT min_ph_air, max_ph_air FROM parameter_ph_air");
+        $ppm_parameter = mysqli_query($conn, "SELECT min_ppm_air, max_ppm_air FROM parameter_ppm_air");
+
+        // Retrieve latest data for suhu, pH, and PPM
+        $latest_suhu = mysqli_query($conn, "SELECT suhu FROM suhu ORDER BY id_suhu DESC LIMIT 1");
+        $latest_ph = mysqli_query($conn, "SELECT ph_air FROM ph_air ORDER BY id_ph DESC LIMIT 1");
+        $latest_ppm = mysqli_query($conn, "SELECT ppm_air FROM ppm_air ORDER BY id_ppm DESC LIMIT 1");
+        $suhu_data = mysqli_fetch_assoc($suhu_parameter);
+        $ph_data = mysqli_fetch_assoc($ph_parameter);
+        $ppm_data = mysqli_fetch_assoc($ppm_parameter);
+    
+        // Fetch latest values
+        $latest_suhu_value = mysqli_fetch_assoc($latest_suhu)['suhu'];
+        $latest_ph_value = mysqli_fetch_assoc($latest_ph)['ph_air'];
+        $latest_ppm_value = mysqli_fetch_assoc($latest_ppm)['ppm_air'];
+    
+        mysqli_close($conn);
+    ?>
+    var suhu = <?php echo isset($latest_suhu_value) ? $latest_suhu_value : '0'; ?>;
+    var minSuhu = <?php echo isset($suhu_data['min_suhu']) ? $suhu_data['min_suhu'] : '0'; ?>;
+    var maxSuhu = <?php echo isset($suhu_data['max_suhu']) ? $suhu_data['max_suhu'] : '0'; ?>;
+    var ph = <?php echo isset($latest_ph_value) ? $latest_ph_value : '0'; ?>;
+    var minPh = <?php echo isset($ph_data['min_ph_air']) ? $ph_data['min_ph_air'] : '0'; ?>;
+    var maxPh = <?php echo isset($ph_data['max_ph_air']) ? $ph_data['max_ph_air'] : '0'; ?>;
+    var ppm = <?php echo isset($latest_ppm_value) ? $latest_ppm_value : '0'; ?>;
+    var minPpm = <?php echo isset($ppm_data['min_ppm_air']) ? $ppm_data['min_ppm_air'] : '0'; ?>;
+    var maxPpm = <?php echo isset($ppm_data['max_ppm_air']) ? $ppm_data['max_ppm_air'] : '0'; ?>;
+
+// Check if the values are within the normal range and call addNotification function
+if ((suhu < minSuhu || suhu > maxSuhu) || (ph < minPh || ph > maxPh) || (ppm < minPpm || ppm > maxPpm)) {
+    addNotification(suhu, minSuhu, maxSuhu, ph, minPh, maxPh, ppm, minPpm, maxPpm);
+} else {
+    // If all values are within the normal range, no need to show any notification
+    var noNotificationMessage = `
+        <div class="notification-item">
+            <div class="small text-gray-500">
+                Tidak ada notifikasi
+            </div>
+        </div>
+    `;
+    suhuNotificationLink.innerHTML = noNotificationMessage;
+    phNotificationLink.innerHTML = noNotificationMessage;
+    ppmNotificationLink.innerHTML = noNotificationMessage;
+    updateCounter(0);
+}
+</script>
+
+
+
+
+
 
 
 

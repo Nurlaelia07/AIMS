@@ -36,14 +36,12 @@
                     </div>
                     <div class="col-md-4">
                         <button id="btn-perbarui" class="btn btn-success" data-toggle="modal"
-                        data-target="#updateModal">Update</button>
+                        data-target="#updateModal">Perbarui</button>
                     </div>
                 </div>
-                </form>
-                
+                </form>   
         </div>
     </div>
-
     <div class="row mt-4">
             <div class="col-md-6">
                 <div class="card p-3">
@@ -66,7 +64,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="border-radius: 15px">
             <div class="modal-header">
-                <h5 class="modal-title p-2 id=" exampleModalLabel">Hasil Analisis pH</h5>
+                <h5 class="modal-title p-2" id="exampleModalLabel">Hasil Analisis pH</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -101,6 +99,7 @@
 @endsection
 
 @section('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script>
     var parameterElement = document.getElementById('parameter');
     <?php
@@ -141,94 +140,140 @@
         maxPhInput.addEventListener('input', checkInputs);
         minPhInput.addEventListener('input', checkInputs);
     });
-    </script>
+</script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var modalBody = document.getElementById('phMessage');
-        <?php
-        $conn = mysqli_connect("127.0.0.1", "root" , "", "aims");
-        $parameter = mysqli_query($conn, "SELECT min_ph_air, max_ph_air FROM parameter_ph_air");
-        $parameterData = mysqli_fetch_assoc($parameter); // Mengambil satu baris data
+document.addEventListener('DOMContentLoaded', function() {
+    var modalBody = document.getElementById('phMessage');
+    <?php
+    $conn = mysqli_connect("127.0.0.1", "root", "", "aims");
+    $parameter = mysqli_query($conn, "SELECT min_ph_air, max_ph_air FROM parameter_ph_air");
+    $parameterData = mysqli_fetch_assoc($parameter); // Mengambil satu baris data
 
-        // Periksa apakah data berhasil diambil
-        if ($parameterData) {
-            $min_ph_air = $parameterData['min_ph_air'];
-            $max_ph_air = $parameterData['max_ph_air'];
+    // Periksa apakah data berhasil diambil
+    if ($parameterData) {
+        $min_ph = $parameterData['min_ph_air'];
+        $max_ph = $parameterData['max_ph_air'];
 
-            // Query data pH
-            $ph_notif = mysqli_query($conn, "SELECT waktu, ph_air FROM ph_air ORDER BY id_ph DESC");
-            $phData = mysqli_fetch_all($ph_notif, MYSQLI_ASSOC);
+        // Query data ph
+        $phnotif = mysqli_query($conn, "SELECT waktu, ph_air FROM ph_air ORDER BY id_ph ASC");
+        $phData = mysqli_fetch_all($phnotif, MYSQLI_ASSOC);
 
-            // Inisialisasi pesan dan saran
-            $pesan_max_ph_air = '';
-            $pesan_min_ph_air = '';
-            $saran_max_ph_air = '';
-            $saran_min_ph_air = '';
-            $interval_waktu_max_ph_air = array();
-            $interval_waktu_min_ph_air = array();
+        // Inisialisasi pesan dan saran
+        $pesan_max_ph = '';
+        $pesan_min_ph = '';
+        $saran_max_ph = '';
+        $saran_min_ph = '';
+        $hours_max_ph = array();
+        $hours_min_ph = array();
 
-            // Looping data pH untuk analisis
-            foreach ($phData as $data) {
-                $waktu = date('H', strtotime($data['waktu'])); // Ambil jam dan menit dari timestamp
-                $ph_air = $data['ph_air'];
+        // Looping data ph untuk analisis
+        foreach ($phData as $data) {
+            $hour = date('H', strtotime($data['waktu'])); // Ambil jam dari timestamp
+            $ph = $data['ph_air'];
 
-                // Analisis pH
-                if ($ph_air > $max_ph_air) {
-                    $interval_waktu_max_ph_air[] = "$waktu.00"; // Format jam dan menit
-                } elseif ($ph_air < $min_ph_air) {
-                    $interval_waktu_min_ph_air[] = "$waktu.00"; // Format jam dan menit
+            // Analisis ph
+            if ($ph > $max_ph) {
+                if (!isset($hours_max_ph[$hour])) {
+                    $hours_max_ph[$hour] = 0;
                 }
-            }
-
-            // Hilangkan duplikasi dan urutkan interval waktu
-            $interval_waktu_max_ph_air = array_unique($interval_waktu_max_ph_air);
-            sort($interval_waktu_max_ph_air);
-            $interval_waktu_min_ph_air = array_unique($interval_waktu_min_ph_air);
-            sort($interval_waktu_min_ph_air);
-
-            // Buat pesan berdasarkan interval waktu
-            if (!empty($interval_waktu_max_ph_air)) {
-                $pesan_max_ph_air = "Berdasarkan data pada jam " . implode(" - ", $interval_waktu_max_ph_air) . " pH berada di atas ambang batas.";
-            }
-
-            if (!empty($interval_waktu_min_ph_air)) {
-                $pesan_min_ph_air = "Berdasarkan data pada jam " . implode(" - ", $interval_waktu_min_ph_air) . " pH berada di bawah ambang batas.";
-            } else {
-                $pesan_min_ph_air = "Tidak ada data pH di bawah ambang batas.";
-            }
-
-            // Buat pesan saran untuk pH di atas ambang batas
-            if (!empty($interval_waktu_max_ph_air)) {
-                $saran_max_ph_air = "Tambahkan penanganan pada jam " . implode(" - ", $interval_waktu_max_ph_air) . ".";
-            } else {
-                $saran_max_ph_air = "Tidak ada penanganan tambahan untuk pH di atas ambang batas.";
-            }
-
-            // Buat pesan saran untuk pH di bawah ambang batas
-            if (!empty($interval_waktu_min_ph_air)) {
-                $saran_min_ph_air = "Tambahkan penanganan pada jam " . implode(" - ", $interval_waktu_min_ph_air) . ".";
-            } else {
-                $saran_min_ph_air = "Tidak ada penanganan tambahan untuk pH di bawah ambang batas.";
+                $hours_max_ph[$hour]++;
+            } elseif ($ph < $min_ph) {
+                if (!isset($hours_min_ph[$hour])) {
+                    $hours_min_ph[$hour] = 0;
+                }
+                $hours_min_ph[$hour]++;
             }
         }
 
-        mysqli_close($conn);
-        ?>
+        // Fungsi untuk membuat interval waktu dari array
+        function create_intervals($hours) {
+            sort($hours); // Pastikan array jam diurutkan
+            $intervals = [];
+            $current_interval = [];
 
-        var pesanMaxPhPHP = "<?php echo $pesan_max_ph_air; ?>"; // Ambil pesan untuk pH di atas ambang batas dari PHP
-        var pesanMinPhPHP = "<?php echo $pesan_min_ph_air; ?>"; // Ambil pesan untuk pH di bawah ambang batas dari PHP
-        var saranMaxPhPHP = "<?php echo $saran_max_ph_air; ?>"; // Ambil saran untuk pH di atas ambang batas dari PHP
-        var saranMinPhPHP = "<?php echo $saran_min_ph_air; ?>"; // Ambil saran untuk pH di bawah ambang batas dari PHP
+            foreach ($hours as $index => $hour) {
+                if (empty($current_interval)) {
+                    $current_interval[] = $hour;
+                } elseif ($hour - end($current_interval) === 1) {
+                    // Jika jam saat ini berurutan dengan jam terakhir di interval, tambahkan ke interval
+                    $current_interval[] = $hour;
+                } else {
+                    // Periksa apakah panjang interval saat ini antara 2 dan 4
+                    $interval_length = count($current_interval);
+                    if ($interval_length >= 2 && $interval_length <= 4) {
+                        $intervals[] = $current_interval[0] . ".00-" . end($current_interval) . ".00";
+                    } else {
+                        // Jika panjang interval tidak dalam rentang, tambahkan jam individu
+                        foreach ($current_interval as $ci) {
+                            $intervals[] = $ci . ".00";
+                        }
+                    }
+                    $current_interval = [$hour];
+                }
+            }
 
-        // Menampilkan pesan dan saran
-        modalBody.innerHTML += '<li>' + pesanMaxPhPHP + '</li>';
-        modalBody.innerHTML += '<li>' + pesanMinPhPHP + '</li>';
-        modalBody.innerHTML += '<h5 style="margin-top: 40px;">Saran</h5>';
-        modalBody.innerHTML += '<li>' + saranMaxPhPHP + '</li>';
-        modalBody.innerHTML += '<li>' + saranMinPhPHP + '</li>';
-    });
+            // Tambahkan interval terakhir atau jam individu
+            $interval_length = count($current_interval);
+            if ($interval_length >= 2 && $interval_length <= 4) {
+                $intervals[] = $current_interval[0] . ".00-" . end($current_interval) . ".00";
+            } else {
+                foreach ($current_interval as $ci) {
+                    $intervals[] = $ci . ".00";
+                }
+            }
+
+            return $intervals;
+        }
+
+        // Sort the hours by frequency and then by the hour
+        asort($hours_max_ph);
+        asort($hours_min_ph);
+
+        // Get the most frequent hours
+        $most_frequent_max_ph = array_keys($hours_max_ph);
+        $most_frequent_min_ph = array_keys($hours_min_ph);
+
+        // Create intervals
+        $interval_waktu_max_ph = create_intervals($most_frequent_max_ph);
+        $interval_waktu_min_ph = create_intervals($most_frequent_min_ph);
+
+        // Buat pesan berdasarkan interval waktu
+        if (!empty($interval_waktu_max_ph)) {
+            $pesan_max_ph = "Berdasarkan data pada jam " . implode(", ", $interval_waktu_max_ph) . " pH berada di atas ambang batas.";
+            $saran_max_ph = "Tambahkan air pada jam " . implode(", ", $interval_waktu_max_ph) . ".";
+        } else {
+            $pesan_max_ph = "Tidak ada data pH yang berada di atas ambang batas.";
+            $saran_max_ph = "Tidak ada saran tambahan untuk pH di atas ambang batas.";
+        }
+
+        if (!empty($interval_waktu_min_ph)) {
+            $pesan_min_ph = "Berdasarkan data pada jam " . implode(", ", $interval_waktu_min_ph) . " pH berada di bawah ambang batas.";
+            $saran_min_ph = "Tambahkan Cairan pH pada jam " . implode(", ", $interval_waktu_min_ph) . ".";
+        } else {
+            $pesan_min_ph = "Tidak ada data pH yang berada di bawah ambang batas.";
+            $saran_min_ph = "Tidak ada saran tambahan untuk pH di bawah ambang batas.";
+        }
+    }
+
+    mysqli_close($conn);
+    ?>
+
+    var pesanMaxPhPHP = "<?php echo $pesan_max_ph; ?>"; // Ambil pesan untuk pH di atas ambang batas dari PHP
+    var pesanMinPhPHP = "<?php echo $pesan_min_ph; ?>"; // Ambil pesan untuk pH di bawah ambang batas dari PHP
+    var saranMaxPhPHP = "<?php echo $saran_max_ph; ?>"; // Ambil saran untuk pH di atas ambang batas dari PHP
+    var saranMinPhPHP = "<?php echo $saran_min_ph; ?>"; // Ambil saran untuk pH di bawah ambang batas dari PHP
+
+    // Menampilkan pesan dan saran
+    modalBody.innerHTML += '<li>' + pesanMaxPhPHP + '</li>';
+    modalBody.innerHTML += '<li>' + pesanMinPhPHP + '</li>';
+    modalBody.innerHTML += '<h5 style="margin-top: 40px;">Saran</h5>';
+    modalBody.innerHTML += '<li>' + saranMaxPhPHP + '</li>';
+    modalBody.innerHTML += '<li>' + saranMinPhPHP + '</li>';
+});
 </script>
+
+
 
 
 <script src="https://bernii.github.io/gauge.js/dist/gauge.min.js"></script>
@@ -253,37 +298,41 @@
 
     var target = document.getElementById('barometer-ph');
     var gauge = new Gauge(target).setOptions(opts);
-    gauge.maxValue = 100;
-    gauge.setMinValue(0);
+    
+    // Initialize with default values
+    gauge.maxValue = 14; // pH scale max value
+    gauge.setMinValue(0); // pH scale min value
     gauge.animationSpeed = 32;
 
-    
-    var ph = <?php echo $latestPh->ph_air; ?>;
-    gauge.set(ph);
+    function updateGauge(ph, maxPh, minPh) {
+        gauge.maxValue = maxPh;
+        gauge.setMinValue(minPh);
 
-    function updateGauge(ph) {
+        if (ph > maxPh) { // If pH exceeds the parameter, set the max pointer value to pH
+            gauge.maxValue = ph;
+        }
+
         gauge.set(ph); 
     }
 
-
     function fetchLatestPh() {
-        $.ajax({
-            url: '/ph',
-            method: 'GET',
-            success: function(response) {
-                const ph = response.ph; 
-                updateGauge(ph); 
-            },
-            error: function(xhr, status, error) {
-                console.error('Error fetching latest ph:', error);
-            }
-        });
+        fetch('/parameter-ph')
+            .then(response => response.json())
+            .then(data => {
+                const ph = <?php echo $latestPh->ph_air; ?>; // Get the pH value from the JSON response
+                const maxPh = data.max_ph_air; // Get the max pH value from the JSON response
+                const minPh = data.min_ph_air; // Get the min pH value from the JSON response
+                updateGauge(ph, maxPh, minPh); // Update the gauge with pH, max pH, and min pH values
+            })
+            .catch(error => console.error('Error fetching latest pH:', error));
     }
 
-    // setInterval(fetchLatestPh, 5000);
+    // Call fetchLatestPh() to initialize the gauge when the page loads
+    fetchLatestPh();
+
+    // Use setInterval to update the gauge periodically
+    setInterval(fetchLatestPh, 10000);
 </script>
-
-
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script>
@@ -301,46 +350,75 @@
                 updatePhDisplay(ph);
             },
             error: function(xhr, status, error) {
-                console.error('Error fetching latest ph:', error);
+                console.error('Error fetching latest pH:', error);
             }
         });
     }
 
-    // setInterval(fetchLatestph_air, 5000);
+    setInterval(fetchLatestPh, 5000);
 </script>
 
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script>
-    const ctx = document.getElementById('grafik-ph');
-    const labels = [];
-    const phData = [];
-    <?php
-        $conn = mysqli_connect("127.0.0.1", "root" , "", "aims"); 
+        var ctx = document.getElementById('grafik-ph').getContext('2d');
+        var labels = [];
+        var phData = [];
+
+        <?php
+        $conn = mysqli_connect("127.0.0.1", "root", "", "aims"); 
         $ph = mysqli_query($conn, "SELECT waktu, ph_air FROM ph_air WHERE waktu >= NOW() - INTERVAL 1 DAY ORDER BY waktu ASC");
         while ($data_ph = mysqli_fetch_array($ph)) {
             echo "labels.push('".$data_ph['waktu']."');";
             echo "phData.push(".$data_ph['ph_air'].");";
         }
-    ?>
+           
+        ?>
 
-    const data = {
-        labels: labels,
-        datasets: [{
-            label: 'Grafik Ph 24 Jam',
-            data: phData,
-            fill: false,
-            borderColor: '#F7C35F',
-            tension: 0.1
-        }]
-    };
+        var data = {
+            labels: labels,
+            datasets: [{
+                label: 'Grafik ph 24 Jam',
+                data: phData,
+                fill: false,
+                borderColor: '#F7C35F',
+                tension: 0.1
+            }]
+        };
 
-    const config = {
-        type: 'line',
-        data: data,
-    };
+        var config = {
+            type: 'line',
+            data: data,
+        };
 
-    const myChart = new Chart(ctx, config);
-</script>
+        var myChart = new Chart(ctx, config);
+
+        function fetchData() {
+            $.ajax({
+                url: 'getph.php',
+                method: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    var newLabels = [];
+                    var newPhData = [];
+
+                    response.forEach(function(item) {
+                        newLabels.push(item.waktu);
+                        newPhData.push(item.ph);
+                    });
+
+                    myChart.data.labels = newLabels;
+                    myChart.data.datasets[0].data = newPhData;
+                    myChart.update();
+                },
+                error: function(error) {
+                    console.error('Error fetching data:', error);
+                }
+            });
+        }
+
+        setInterval(fetchData, 10000); 
+    </script>
+
 
 @endsection

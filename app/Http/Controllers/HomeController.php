@@ -11,10 +11,14 @@ class HomeController extends Controller
 {
     public function homeData()
     {
-        $suhu = Suhu::orderBy('id_suhu', 'desc')->first();
-        $ph = Ph::orderBy('id_ph', 'desc')->first();
-        $ppm = Ppm::orderBy('id_ppm', 'desc')->first();
-    
-        return view('home', compact('suhu', 'ph', 'ppm'));
+        $suhu = Suhu::orderByDesc('id_suhu')->first();
+        $ph = Ph::orderByDesc('id_ph')->first();
+        $ppm = Ppm::orderByDesc('id_ppm')->first();
+
+        return view('home', [
+            'suhu' => $suhu,
+            'ph' => $ph,
+            'ppm' => $ppm
+        ]);
     }
 }

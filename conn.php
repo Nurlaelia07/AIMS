@@ -1,34 +1,47 @@
 <?php
 
-$servername = "localhost"; // Ganti dengan hostname atau alamat IP server MySQL Anda
-$username = "root"; // Ganti dengan username MySQL Anda
-$password = ""; // Ganti dengan password MySQL Anda
-$database = "aims"; // Ganti dengan nama database MySQL Anda
+$servername = "localhost"; 
+$username = "root"; 
+$password = ""; 
+$database = "aims"; 
 
 try {
-    // Buat koneksi menggunakan PDO
+
     $conn = new PDO("mysql:host=$servername;dbname=$database", $username, $password);
 
-    // Set mode error PDO ke exception
+
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    //echo "Koneksi sukses"; // Opsional: Uncomment jika ingin menampilkan pesan koneksi sukses
-    
-    // Ambil data suhu dari request POST Arduino
+
     $tanggal = $_POST['tanggal'];
     $waktu = $_POST['waktu'];
     $suhu = $_POST['suhu'];
+    $tds = $_POST['tds']; 
+    $ph = $_POST['ph']; 
 
-    // Persiapkan statement SQL untuk menyimpan data suhu ke tabel suhu
-    $stmt = $conn->prepare("INSERT INTO suhu (tanggal, waktu, suhu) VALUES (:tanggal, :waktu, :suhu)");
-    $stmt->bindParam(':tanggal', $tanggal);
-    $stmt->bindParam(':waktu', $waktu);
-    $stmt->bindParam(':suhu', $suhu);
+  
+    $stmtSuhu = $conn->prepare("INSERT INTO suhu (tanggal, waktu, suhu) VALUES (:tanggal, :waktu, :suhu)");
+    $stmtSuhu->bindParam(':tanggal', $tanggal);
+    $stmtSuhu->bindParam(':waktu', $waktu);
+    $stmtSuhu->bindParam(':suhu', $suhu);
 
-    // Eksekusi s tatement SQL untuk menyimpan data
-    $stmt->execute();
+    $stmtTDS = $conn->prepare("INSERT INTO ppm_air (tanggal, waktu, ppm_air) VALUES (:tanggal, :waktu, :ppm_air)");
+    $stmtTDS->bindParam(':tanggal', $tanggal);
+    $stmtTDS->bindParam(':waktu', $waktu);
+    $stmtTDS->bindParam(':ppm_air', $tds);
 
-    echo "Data suhu berhasil disimpan";
+    
+    $stmtPH = $conn->prepare("INSERT INTO ph_air (tanggal, waktu, ph_air) VALUES (:tanggal, :waktu, :ph_air)");
+    $stmtPH->bindParam(':tanggal', $tanggal);
+    $stmtPH->bindParam(':waktu', $waktu);
+    $stmtPH->bindParam(':ph_air', $ph);
+
+    $stmtSuhu->execute();
+    $stmtTDS->execute();
+    $stmtPH->execute();
+
+    echo "Data suhu, TDS/PPM, dan pH berhasil disimpan";
     
 } catch(PDOException $e) {
     echo "Koneksi gagal: " . $e->getMessage();
 }
+

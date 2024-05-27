@@ -1,4 +1,5 @@
 @extends('layouts.app')
+
 @section('content')
     <div class="container">
         <div class="row">
@@ -10,24 +11,26 @@
                 </div>
             </div>
         </div>
-        <div class="row mt-4">
-            <h3 class="mb-3">Daily Report</h3>
-            <div class="col-md-4 mb-3" >
-                <div class="card p-4" style="border-radius: 20px">
-                    <p>Temperature</p>
-                    <h1 id="suhu" class="mt-3" style="color: #FFAA00"></h1>
+        <div id="display-container">
+            <div class="row mt-4">
+                <h3 class="mb-3">Daily Report</h3>
+                <div class="col-md-4 mb-3">
+                    <div class="card p-4" style="border-radius: 20px">
+                        <p>Temperature</p>
+                        <h1 id="suhu" class="mt-3" style="color: #FFAA00">{{ $suhu ? $suhu->suhu : 'Data tidak tersedia' }}</h1>
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-4 mb-3" >
-                <div class="card p-4" style="border-radius: 20px">
-                    <p>pH</p>
-                    <h1 id="ph" class="mt-3" style="color: #FFAA00"></h1>
+                <div class="col-md-4 mb-3">
+                    <div class="card p-4" style="border-radius: 20px">
+                        <p>pH</p>
+                        <h1 id="ph" class="mt-3" style="color: #FFAA00">{{ $ph ? $ph->ph_air : 'Data tidak tersedia' }}</h1>
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-4 mb-3" >
-                <div class="card p-4" style="border-radius: 20px">
-                    <p>PPM</p>
-                    <h1 class="mt-3" style="color: #FFAA00">20</h1>
+                <div class="col-md-4 mb-3">
+                    <div class="card p-4" style="border-radius: 20px">
+                        <p>PPM</p>
+                        <h1 id="ppm" class="mt-3" style="color: #FFAA00">{{ $ppm ? $ppm->ppm_air : 'Data tidak tersedia' }}</h1>
+                    </div>
                 </div>
             </div>
         </div>
@@ -35,50 +38,25 @@
 @endsection
 
 @section('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    function updateSuhuDisplay(suhu) {
-        $('#suhu').text(suhu); 
-    }
-
-
-    function updatePHDisplay(ph) {
-        $('#ph').text(ph); 
-    }
-    updateSuhuDisplay(<?php echo $suhu->suhu; ?>);
-    updatePHDisplay(<?php echo $ph->ph_air; ?>);
-
-    function fetchLatestSuhu() {
+    function fetchData() {
         $.ajax({
-            url: '/', 
+            url: '{{ route("home") }}',
             method: 'GET',
             success: function(response) {
-                const suhu = response.suhu; 
-                updateSuhuDisplay(suhu); 
+                console.log('Response from server:', response);
+                $('#display-container').html($(response).find('#display-container').html());
             },
             error: function(xhr, status, error) {
-                console.error('Error fetching latest suhu:', error);
+                console.error('Error fetching data:', error);
             }
         });
     }
 
- 
-    function fetchLatestPH() {
-        $.ajax({
-            url: '/', 
-            method: 'GET',
-            success: function(response) {
-                const ph = response.ph;
-                updatePHDisplay(ph);
-            },
-            error: function(xhr, status, error) {
-                console.error('Error fetching latest pH:', error); 
-            }
-        });
-    }
-
-    
-
-    // setInterval(fetchLatestSuhu, 5000);
-    // setInterval(fetchLatestPH, 5000);
+    $(document).ready(function() {
+        fetchData();
+        setInterval(fetchData, 2000);
+    });
 </script>
 @endsection

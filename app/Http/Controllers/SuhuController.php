@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
 use App\Models\Suhu;
-use App\Models\Ph;
 use App\Models\ParameterSuhu;
 use App\Models\Control;
 use Illuminate\Support\Carbon;
@@ -84,6 +83,17 @@ class SuhuController extends Controller
         return view('suhu.suhu',  ['latestSuhu'=> $latestSuhu]);
     }
 
+    public function parameter()
+    {
+        $parameters = ParameterSuhu::first();
+
+        if ($parameters) {
+            return response()->json($parameters);
+        } else {
+            return response()->json(['message' => 'Parameter not found'], 404);
+        }
+    }
+
     // public function homeData()
     // {
     //     $suhu = Suhu::orderBy('id_suhu', 'desc')->first();
@@ -100,35 +110,36 @@ class SuhuController extends Controller
     // }
 
     public function updateparametersuhu(Request $request)
-    {
-        try {
-            $request->validate([
-                'max_suhu' => 'nullable|numeric',
-                'min_suhu' => 'nullable|numeric',
-            ]);
+{
+    try {
+        $request->validate([
+            'max_suhu' => 'nullable|numeric',
+            'min_suhu' => 'nullable|numeric',
+        ]);
 
-            if (!$request->filled('max_suhu') && !$request->filled('min_suhu')) {
-                return redirect()->back()->with('error', 'Minimal satu bidang harus diisi.');
-            }
-
-            $parameter = ParameterSuhu::find(1);
-
-            if ($request->filled('max_suhu')) {
-                $parameter->max_suhu = $request->max_suhu;
-            }
-
-            if ($request->filled('min_suhu')) {
-                $parameter->min_suhu = $request->min_suhu;
-            }
-
-            $parameter->save();
-            return redirect()->back()->with('success', 'Parameter suhu berhasil diperbarui.');
-        } catch (\Illuminate\Database\QueryException $e) {
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat memperbarui parameter suhu: ' . $e->getMessage());
-        } catch (Exception $e) {
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat memperbarui parameter suhu: ' . $e->getMessage());
+        if (!$request->filled('max_suhu') && !$request->filled('min_suhu')) {
+            return redirect()->back()->with('error', 'Minimal satu bidang harus diisi.');
         }
+
+        $parameterSuhu = ParameterSuhu::find(1); // Ganti variabel $parameter menjadi $parameterSuhu
+
+        if ($request->filled('max_suhu')) {
+            $parameterSuhu->max_suhu = $request->max_suhu;
+        }
+
+        if ($request->filled('min_suhu')) {
+            $parameterSuhu->min_suhu = $request->min_suhu;
+        }
+
+        $parameterSuhu->save(); // Ganti $parameter menjadi $parameterSuhu
+        return redirect()->back()->with('success', 'Parameter suhu berhasil diperbarui.');
+    } catch (\Illuminate\Database\QueryException $e) {
+        return redirect()->back()->with('error', 'Terjadi kesalahan saat memperbarui parameter suhu: ' . $e->getMessage());
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Terjadi kesalahan saat memperbarui parameter suhu: ' . $e->getMessage());
     }
+}
+
     
     
     
